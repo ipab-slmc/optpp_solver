@@ -89,14 +89,14 @@ void UnconstrainedEndPoseProblemWrapper::init(int n, ColumnVector& x)
     for(int i=0; i<n; i++) x(i+1) = x0(i);
 }
 
-FDNLF1WrapperUEPP UnconstrainedEndPoseProblemWrapper::getFDNLF1()
+std::shared_ptr<FDNLF1WrapperUEPP> UnconstrainedEndPoseProblemWrapper::getFDNLF1()
 {
-    return FDNLF1WrapperUEPP(*this);
+    return std::shared_ptr<FDNLF1WrapperUEPP>(new FDNLF1WrapperUEPP(*this));
 }
 
-NLF1WrapperUEPP UnconstrainedEndPoseProblemWrapper::getNLF1()
+std::shared_ptr<NLF1WrapperUEPP> UnconstrainedEndPoseProblemWrapper::getNLF1()
 {
-    return NLF1WrapperUEPP(*this);
+    return std::shared_ptr<NLF1WrapperUEPP>(new NLF1WrapperUEPP(*this));
 }
 
 NLF1WrapperUEPP::NLF1WrapperUEPP(const UnconstrainedEndPoseProblemWrapper& parent) : parent_(parent),

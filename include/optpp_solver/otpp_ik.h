@@ -46,8 +46,7 @@
 
 namespace exotica
 {
-/// \brief	OPT++ IK solver
-
+/// \brief LBFGS IK solver
 class OptppIKLBFGS : public MotionSolver, public Instantiable<OptppIKLBFGSInitializer>
 {
 public:

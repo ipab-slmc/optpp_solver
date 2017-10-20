@@ -66,8 +66,8 @@ public:
     void update(int mode, int n, const ColumnVector& x, double& fx, ColumnVector& gx, int& result);
     void init(int n, ColumnVector& x);
 
-    FDNLF1WrapperUEPP getFDNLF1();
-    NLF1WrapperUEPP getNLF1();
+    std::shared_ptr<FDNLF1WrapperUEPP> getFDNLF1();
+    std::shared_ptr<NLF1WrapperUEPP> getNLF1();
 
 
     UnconstrainedEndPoseProblem_ptr problem_;

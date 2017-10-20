@@ -66,10 +66,16 @@ void OptppIKLBFGS::Solve(Eigen::MatrixXd& solution)
 
     Try
     {
-        UnconstrainedEndPoseProblemWrapper nlp(prob_);
-        //FDNLF1WrapperUEPP nlf = nlp.getFDNLF1();
-        NLF1WrapperUEPP nlf = nlp.getNLF1();
-        OPTPP::OptLBFGS solver(&nlf);
+        std::shared_ptr<NLP1> nlf;
+        if(parameters_.UseFiniteDifferences)
+        {
+            nlf = std::static_pointer_cast<NLP1>(UnconstrainedEndPoseProblemWrapper(prob_).getFDNLF1());
+        }
+        else
+        {
+            nlf = std::static_pointer_cast<NLP1>(UnconstrainedEndPoseProblemWrapper(prob_).getNLF1());
+        }
+        OPTPP::OptLBFGS solver(nlf.get());
         solver.setGradTol(parameters_.GradienTolerance);
         solver.setMaxBacktrackIter(parameters_.MaxBacktrackIterations);
         solver.setLineSearchTol(parameters_.LineSearchTolerance);
@@ -78,11 +84,11 @@ void OptppIKLBFGS::Solve(Eigen::MatrixXd& solution)
         for(int i=0; i<prob_->N; i++) W(i+1) = prob_->W(i,i);
         solver.setXScale(W);
         solver.optimize();
-        ColumnVector sol = nlf.getXc();
+        ColumnVector sol = nlf->getXc();
         for(int i=0; i<prob_->N; i++) solution(0,i) = sol(i+1);
         iter = solver.getIter();
-        feval = nlf.getFevals();
-        geval = nlf.getGevals();
+        feval = nlf->getFevals();
+        geval = nlf->getGevals();
         ret = solver.getReturnCode();
         solver.cleanup();
     }
