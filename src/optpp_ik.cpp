@@ -39,25 +39,12 @@
 #include <optpp_solver/otpp_ik.h>
 #include <optpp_catkin/OptLBFGS.h>
 
-REGISTER_MOTIONSOLVER_TYPE("OptppIK", exotica::OptppIK)
+REGISTER_MOTIONSOLVER_TYPE("OptppIKLBFGS", exotica::OptppIKLBFGS)
 
 namespace exotica
 {
 
-OptppIK::OptppIK()
-{
-}
-
-OptppIK::~OptppIK()
-{
-}
-
-void OptppIK::Instantiate(OptppIKInitializer& init)
-{
-    parameters_ = init;
-}
-
-void OptppIK::specifyProblem(PlanningProblem_ptr pointer)
+void OptppIKLBFGS::specifyProblem(PlanningProblem_ptr pointer)
 {
     if (pointer->type() != "exotica::UnconstrainedEndPoseProblem")
     {
@@ -67,14 +54,7 @@ void OptppIK::specifyProblem(PlanningProblem_ptr pointer)
     prob_ = std::static_pointer_cast<UnconstrainedEndPoseProblem>(pointer);
 }
 
-UnconstrainedEndPoseProblem_ptr& OptppIK::getProblem()
-{
-    return prob_;
-}
-
-void update_model(int, int, ColumnVector) {}
-
-void OptppIK::Solve(Eigen::MatrixXd& solution)
+void OptppIKLBFGS::Solve(Eigen::MatrixXd& solution)
 {
     Timer timer;
 
@@ -82,6 +62,7 @@ void OptppIK::Solve(Eigen::MatrixXd& solution)
     prob_->preupdate();
 
     solution.resize(1, prob_->N);
+    int iter, feval, geval, ret;
 
     Try
     {
@@ -89,12 +70,20 @@ void OptppIK::Solve(Eigen::MatrixXd& solution)
         //FDNLF1WrapperUEPP nlf = nlp.getFDNLF1();
         NLF1WrapperUEPP nlf = nlp.getNLF1();
         OPTPP::OptLBFGS solver(&nlf);
-        solver.setUpdateModel(update_model);
-        solver.setGradTol(1.e-6);
-        solver.setMaxBacktrackIter(10);
+        solver.setGradTol(parameters_.GradienTolerance);
+        solver.setMaxBacktrackIter(parameters_.MaxBacktrackIterations);
+        solver.setLineSearchTol(parameters_.LineSearchTolerance);
+        solver.setMaxIter(parameters_.MaxIterations);
+        ColumnVector W(prob_->N);
+        for(int i=0; i<prob_->N; i++) W(i+1) = prob_->W(i,i);
+        solver.setXScale(W);
         solver.optimize();
         ColumnVector sol = nlf.getXc();
         for(int i=0; i<prob_->N; i++) solution(0,i) = sol(i+1);
+        iter = solver.getIter();
+        feval = nlf.getFevals();
+        geval = nlf.getGevals();
+        ret = solver.getReturnCode();
         solver.cleanup();
     }
     CatchAll
@@ -104,6 +93,11 @@ void OptppIK::Solve(Eigen::MatrixXd& solution)
     }
 
     planning_time_ = timer.getDuration();
+
+    if(debug_)
+    {
+        HIGHLIGHT_NAMED(object_name_, "Time: "<<planning_time_<<" ,Status: "<<ret<<" , Iterations: "<<iter<<" ,Feval: "<<feval<<" , Geval: "<<geval);
+    }
 }
 
 }

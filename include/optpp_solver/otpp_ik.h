@@ -42,34 +42,34 @@
 #include <optpp_solver/optpp_core.h>
 #include <exotica/Exotica.h>
 #include <exotica/Problems/UnconstrainedEndPoseProblem.h>
-#include <optpp_solver/OptppIKInitializer.h>
+#include <optpp_solver/OptppIKLBFGSInitializer.h>
 
 namespace exotica
 {
 /// \brief	OPT++ IK solver
 
-class OptppIK : public MotionSolver, public Instantiable<OptppIKInitializer>
+class OptppIKLBFGS : public MotionSolver, public Instantiable<OptppIKLBFGSInitializer>
 {
 public:
-    OptppIK();
-    virtual ~OptppIK();
+    OptppIKLBFGS() {}
+    virtual ~OptppIKLBFGS() {}
 
-    virtual void Instantiate(OptppIKInitializer& init);
+    virtual void Instantiate(OptppIKLBFGSInitializer& init) { parameters_ = init;}
 
     virtual void Solve(Eigen::MatrixXd& solution);
 
     virtual void specifyProblem(PlanningProblem_ptr pointer);
 
-    UnconstrainedEndPoseProblem_ptr& getProblem();
+    UnconstrainedEndPoseProblem_ptr& getProblem() { return prob_;}
 
     double planning_time_;
 
 private:
-    OptppIKInitializer parameters_;
+    OptppIKLBFGSInitializer parameters_;
 
     UnconstrainedEndPoseProblem_ptr prob_;  // Shared pointer to the planning problem.
 };
-typedef std::shared_ptr<exotica::OptppIK> OptppIK_ptr;
+typedef std::shared_ptr<exotica::OptppIKLBFGS> OptppIKLBFGS_ptr;
 
 }
 

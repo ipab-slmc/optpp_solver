@@ -1,5 +1,5 @@
 <library path="lib/liboptpp_ik">
-  <class name="exotica/OptppIK" type="exotica::OptppIK" base_class_type="exotica::MotionSolver">
-    <description>OPT++ IK solver</description>
+  <class name="exotica/OptppIKLBFGS" type="exotica::OptppIKLBFGS" base_class_type="exotica::MotionSolver">
+    <description>OPT++ IK solver using LBFGS</description>
   </class>
 </library>
