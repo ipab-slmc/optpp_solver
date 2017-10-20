@@ -1,10 +1,7 @@
 <?xml version="1.0" ?>
 <IKSolverDemoConfig>
 
-  <OptppIKLBFGS Name="MySolver" Debug="1">
-    <MaxBacktrackIterations>10</MaxBacktrackIterations>
-    <MaxIterations>100</MaxIterations>
-  </OptppIKLBFGS>
+  <OptppIKLBFGS Name="MySolver" Debug="1" />
 
   <UnconstrainedEndPoseProblem Name="MyProblem">
 

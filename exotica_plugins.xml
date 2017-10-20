@@ -2,4 +2,16 @@
   <class name="exotica/OptppIKLBFGS" type="exotica::OptppIKLBFGS" base_class_type="exotica::MotionSolver">
     <description>OPT++ IK solver using LBFGS</description>
   </class>
+  <class name="exotica/OptppIKCG" type="exotica::OptppIKCG" base_class_type="exotica::MotionSolver">
+    <description>OPT++ IK solver using conjugate gradient</description>
+  </class>
+  <class name="exotica/OptppIKQNewton" type="exotica::OptppIKQNewton" base_class_type="exotica::MotionSolver">
+    <description>OPT++ IK solver using Newton method</description>
+  </class>
+  <class name="exotica/OptppIKFDNewton" type="exotica::OptppIKFDNewton" base_class_type="exotica::MotionSolver">
+    <description>OPT++ IK solver using Newton method with finite differences for estimating the Hessian</description>
+  </class>
+  <class name="exotica/OptppIKGSS" type="exotica::OptppIKGSS" base_class_type="exotica::MotionSolver">
+    <description>OPT++ IK solver using generating set search method</description>
+  </class>
 </library>

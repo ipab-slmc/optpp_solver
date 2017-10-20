@@ -43,6 +43,10 @@
 #include <exotica/Exotica.h>
 #include <exotica/Problems/UnconstrainedEndPoseProblem.h>
 #include <optpp_solver/OptppIKLBFGSInitializer.h>
+#include <optpp_solver/OptppIKCGInitializer.h>
+#include <optpp_solver/OptppIKFDNewtonInitializer.h>
+#include <optpp_solver/OptppIKGSSInitializer.h>
+#include <optpp_solver/OptppIKQNewtonInitializer.h>
 
 namespace exotica
 {
@@ -70,6 +74,103 @@ private:
 };
 typedef std::shared_ptr<exotica::OptppIKLBFGS> OptppIKLBFGS_ptr;
 
-}
 
+/// \brief Conjugate Gradient IK solver
+class OptppIKCG : public MotionSolver, public Instantiable<OptppIKCGInitializer>
+{
+public:
+    OptppIKCG() {}
+    virtual ~OptppIKCG() {}
+
+    virtual void Instantiate(OptppIKCGInitializer& init) { parameters_ = init;}
+
+    virtual void Solve(Eigen::MatrixXd& solution);
+
+    virtual void specifyProblem(PlanningProblem_ptr pointer);
+
+    UnconstrainedEndPoseProblem_ptr& getProblem() { return prob_;}
+
+    double planning_time_;
+
+private:
+    OptppIKCGInitializer parameters_;
+
+    UnconstrainedEndPoseProblem_ptr prob_;  // Shared pointer to the planning problem.
+};
+typedef std::shared_ptr<exotica::OptppIKCG> OptppIKCG_ptr;
+
+
+/// \brief Newton method IK solver
+class OptppIKQNewton : public MotionSolver, public Instantiable<OptppIKQNewtonInitializer>
+{
+public:
+    OptppIKQNewton() {}
+    virtual ~OptppIKQNewton() {}
+
+    virtual void Instantiate(OptppIKQNewtonInitializer& init) { parameters_ = init;}
+
+    virtual void Solve(Eigen::MatrixXd& solution);
+
+    virtual void specifyProblem(PlanningProblem_ptr pointer);
+
+    UnconstrainedEndPoseProblem_ptr& getProblem() { return prob_;}
+
+    double planning_time_;
+
+private:
+    OptppIKQNewtonInitializer parameters_;
+
+    UnconstrainedEndPoseProblem_ptr prob_;  // Shared pointer to the planning problem.
+};
+typedef std::shared_ptr<exotica::OptppIKQNewton> OptppIKQNewton_ptr;
+
+/// \brief Newton method IK solver using finite differences for estimating the Hessian
+class OptppIKFDNewton : public MotionSolver, public Instantiable<OptppIKFDNewtonInitializer>
+{
+public:
+    OptppIKFDNewton() {}
+    virtual ~OptppIKFDNewton() {}
+
+    virtual void Instantiate(OptppIKFDNewtonInitializer& init) { parameters_ = init;}
+
+    virtual void Solve(Eigen::MatrixXd& solution);
+
+    virtual void specifyProblem(PlanningProblem_ptr pointer);
+
+    UnconstrainedEndPoseProblem_ptr& getProblem() { return prob_;}
+
+    double planning_time_;
+
+private:
+    OptppIKFDNewtonInitializer parameters_;
+
+    UnconstrainedEndPoseProblem_ptr prob_;  // Shared pointer to the planning problem.
+};
+typedef std::shared_ptr<exotica::OptppIKFDNewton> OptppIKFDNewton_ptr;
+
+/// \brief Generating set search method IK solver
+class OptppIKGSS : public MotionSolver, public Instantiable<OptppIKGSSInitializer>
+{
+public:
+    OptppIKGSS() {}
+    virtual ~OptppIKGSS() {}
+
+    virtual void Instantiate(OptppIKGSSInitializer& init) { parameters_ = init;}
+
+    virtual void Solve(Eigen::MatrixXd& solution);
+
+    virtual void specifyProblem(PlanningProblem_ptr pointer);
+
+    UnconstrainedEndPoseProblem_ptr& getProblem() { return prob_;}
+
+    double planning_time_;
+
+private:
+    OptppIKGSSInitializer parameters_;
+
+    UnconstrainedEndPoseProblem_ptr prob_;  // Shared pointer to the planning problem.
+};
+typedef std::shared_ptr<exotica::OptppIKGSS> OptppIKGSS_ptr;
+
+}
 #endif // OPTPPIK_H

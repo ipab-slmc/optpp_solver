@@ -38,8 +38,16 @@
 
 #include <optpp_solver/otpp_ik.h>
 #include <optpp_catkin/OptLBFGS.h>
+#include <optpp_catkin/OptCG.h>
+#include <optpp_catkin/OptQNewton.h>
+#include <optpp_catkin/OptFDNewton.h>
+#include <optpp_catkin/OptGSS.h>
 
 REGISTER_MOTIONSOLVER_TYPE("OptppIKLBFGS", exotica::OptppIKLBFGS)
+REGISTER_MOTIONSOLVER_TYPE("OptppIKCG", exotica::OptppIKCG)
+REGISTER_MOTIONSOLVER_TYPE("OptppIKQNewton", exotica::OptppIKQNewton)
+REGISTER_MOTIONSOLVER_TYPE("OptppIKFDNewton", exotica::OptppIKFDNewton)
+REGISTER_MOTIONSOLVER_TYPE("OptppIKGSS", exotica::OptppIKGSS)
 
 namespace exotica
 {
@@ -102,7 +110,261 @@ void OptppIKLBFGS::Solve(Eigen::MatrixXd& solution)
 
     if(debug_)
     {
-        HIGHLIGHT_NAMED(object_name_, "Time: "<<planning_time_<<" ,Status: "<<ret<<" , Iterations: "<<iter<<" ,Feval: "<<feval<<" , Geval: "<<geval);
+        HIGHLIGHT_NAMED(object_name_+" OptppIKLBFGS", "Time: "<<planning_time_<<" ,Status: "<<ret<<" , Iterations: "<<iter<<" ,Feval: "<<feval<<" , Geval: "<<geval);
+    }
+}
+
+
+
+void OptppIKCG::specifyProblem(PlanningProblem_ptr pointer)
+{
+    if (pointer->type() != "exotica::UnconstrainedEndPoseProblem")
+    {
+        throw_named("OPT++ IK can't solve problem of type '" << pointer->type() << "'!");
+    }
+    MotionSolver::specifyProblem(pointer);
+    prob_ = std::static_pointer_cast<UnconstrainedEndPoseProblem>(pointer);
+}
+
+void OptppIKCG::Solve(Eigen::MatrixXd& solution)
+{
+    Timer timer;
+
+    if (!prob_) throw_named("Solver has not been initialized!");
+    prob_->preupdate();
+
+    solution.resize(1, prob_->N);
+    int iter, feval, geval, ret;
+
+    Try
+    {
+        std::shared_ptr<NLP1> nlf;
+        if(parameters_.UseFiniteDifferences)
+        {
+            nlf = std::static_pointer_cast<NLP1>(UnconstrainedEndPoseProblemWrapper(prob_).getFDNLF1());
+        }
+        else
+        {
+            nlf = std::static_pointer_cast<NLP1>(UnconstrainedEndPoseProblemWrapper(prob_).getNLF1());
+        }
+        OPTPP::OptCG solver(nlf.get());
+        solver.setGradTol(parameters_.GradienTolerance);
+        solver.setMaxBacktrackIter(parameters_.MaxBacktrackIterations);
+        solver.setLineSearchTol(parameters_.LineSearchTolerance);
+        solver.setMaxIter(parameters_.MaxIterations);
+        ColumnVector W(prob_->N);
+        for(int i=0; i<prob_->N; i++) W(i+1) = prob_->W(i,i);
+        solver.setXScale(W);
+        solver.optimize();
+        ColumnVector sol = nlf->getXc();
+        for(int i=0; i<prob_->N; i++) solution(0,i) = sol(i+1);
+        iter = solver.getIter();
+        feval = nlf->getFevals();
+        geval = nlf->getGevals();
+        ret = solver.getReturnCode();
+        solver.cleanup();
+    }
+    CatchAll
+    {
+        Tracer::last->PrintTrace();
+        throw_pretty("OPT++ exception:"<<BaseException::what());
+    }
+
+    planning_time_ = timer.getDuration();
+
+    if(debug_)
+    {
+        HIGHLIGHT_NAMED(object_name_+" OptppIKCG", "Time: "<<planning_time_<<" ,Status: "<<ret<<" , Iterations: "<<iter<<" ,Feval: "<<feval<<" , Geval: "<<geval);
+    }
+}
+
+
+
+
+void OptppIKQNewton::specifyProblem(PlanningProblem_ptr pointer)
+{
+    if (pointer->type() != "exotica::UnconstrainedEndPoseProblem")
+    {
+        throw_named("OPT++ IK can't solve problem of type '" << pointer->type() << "'!");
+    }
+    MotionSolver::specifyProblem(pointer);
+    prob_ = std::static_pointer_cast<UnconstrainedEndPoseProblem>(pointer);
+}
+
+void OptppIKQNewton::Solve(Eigen::MatrixXd& solution)
+{
+    Timer timer;
+
+    if (!prob_) throw_named("Solver has not been initialized!");
+    prob_->preupdate();
+
+    solution.resize(1, prob_->N);
+    int iter, feval, geval, ret;
+
+    Try
+    {
+        std::shared_ptr<NLP1> nlf;
+        if(parameters_.UseFiniteDifferences)
+        {
+            nlf = std::static_pointer_cast<NLP1>(UnconstrainedEndPoseProblemWrapper(prob_).getFDNLF1());
+        }
+        else
+        {
+            nlf = std::static_pointer_cast<NLP1>(UnconstrainedEndPoseProblemWrapper(prob_).getNLF1());
+        }
+        OPTPP::OptQNewton solver(nlf.get());
+        solver.setGradTol(parameters_.GradienTolerance);
+        solver.setMaxBacktrackIter(parameters_.MaxBacktrackIterations);
+        solver.setLineSearchTol(parameters_.LineSearchTolerance);
+        solver.setMaxIter(parameters_.MaxIterations);
+        ColumnVector W(prob_->N);
+        for(int i=0; i<prob_->N; i++) W(i+1) = prob_->W(i,i);
+        solver.setXScale(W);
+        solver.optimize();
+        ColumnVector sol = nlf->getXc();
+        for(int i=0; i<prob_->N; i++) solution(0,i) = sol(i+1);
+        iter = solver.getIter();
+        feval = nlf->getFevals();
+        geval = nlf->getGevals();
+        ret = solver.getReturnCode();
+        solver.cleanup();
+    }
+    CatchAll
+    {
+        Tracer::last->PrintTrace();
+        throw_pretty("OPT++ exception:"<<BaseException::what());
+    }
+
+    planning_time_ = timer.getDuration();
+
+    if(debug_)
+    {
+        HIGHLIGHT_NAMED(object_name_+" OptppIKQNewton", "Time: "<<planning_time_<<" ,Status: "<<ret<<" , Iterations: "<<iter<<" ,Feval: "<<feval<<" , Geval: "<<geval);
+    }
+}
+
+
+
+
+
+void OptppIKFDNewton::specifyProblem(PlanningProblem_ptr pointer)
+{
+    if (pointer->type() != "exotica::UnconstrainedEndPoseProblem")
+    {
+        throw_named("OPT++ IK can't solve problem of type '" << pointer->type() << "'!");
+    }
+    MotionSolver::specifyProblem(pointer);
+    prob_ = std::static_pointer_cast<UnconstrainedEndPoseProblem>(pointer);
+}
+
+void OptppIKFDNewton::Solve(Eigen::MatrixXd& solution)
+{
+    Timer timer;
+
+    if (!prob_) throw_named("Solver has not been initialized!");
+    prob_->preupdate();
+
+    solution.resize(1, prob_->N);
+    int iter, feval, geval, ret;
+
+    Try
+    {
+        std::shared_ptr<NLP1> nlf;
+        if(parameters_.UseFiniteDifferences)
+        {
+            nlf = std::static_pointer_cast<NLP1>(UnconstrainedEndPoseProblemWrapper(prob_).getFDNLF1());
+        }
+        else
+        {
+            nlf = std::static_pointer_cast<NLP1>(UnconstrainedEndPoseProblemWrapper(prob_).getNLF1());
+        }
+        OPTPP::OptFDNewton solver(nlf.get());
+        solver.setGradTol(parameters_.GradienTolerance);
+        solver.setMaxBacktrackIter(parameters_.MaxBacktrackIterations);
+        solver.setLineSearchTol(parameters_.LineSearchTolerance);
+        solver.setMaxIter(parameters_.MaxIterations);
+        ColumnVector W(prob_->N);
+        for(int i=0; i<prob_->N; i++) W(i+1) = prob_->W(i,i);
+        solver.setXScale(W);
+        solver.optimize();
+        ColumnVector sol = nlf->getXc();
+        for(int i=0; i<prob_->N; i++) solution(0,i) = sol(i+1);
+        iter = solver.getIter();
+        feval = nlf->getFevals();
+        geval = nlf->getGevals();
+        ret = solver.getReturnCode();
+        solver.cleanup();
+    }
+    CatchAll
+    {
+        Tracer::last->PrintTrace();
+        throw_pretty("OPT++ exception:"<<BaseException::what());
+    }
+
+    planning_time_ = timer.getDuration();
+
+    if(debug_)
+    {
+        HIGHLIGHT_NAMED(object_name_+" OptppIKFDNewton", "Time: "<<planning_time_<<" ,Status: "<<ret<<" , Iterations: "<<iter<<" ,Feval: "<<feval<<" , Geval: "<<geval);
+    }
+}
+
+
+
+
+
+
+
+void OptppIKGSS::specifyProblem(PlanningProblem_ptr pointer)
+{
+    if (pointer->type() != "exotica::UnconstrainedEndPoseProblem")
+    {
+        throw_named("OPT++ IK can't solve problem of type '" << pointer->type() << "'!");
+    }
+    MotionSolver::specifyProblem(pointer);
+    prob_ = std::static_pointer_cast<UnconstrainedEndPoseProblem>(pointer);
+}
+
+void OptppIKGSS::Solve(Eigen::MatrixXd& solution)
+{
+    Timer timer;
+
+    if (!prob_) throw_named("Solver has not been initialized!");
+    prob_->preupdate();
+
+    solution.resize(1, prob_->N);
+    int iter, feval, geval, ret;
+
+    Try
+    {
+        std::shared_ptr<NLP1> nlf;
+        nlf = std::static_pointer_cast<NLP1>(UnconstrainedEndPoseProblemWrapper(prob_).getFDNLF1());
+        GenSetStd setBase(problem_->N);
+        OPTPP::OptGSS solver(nlf.get(), &setBase);
+        solver.setFullSearch(true);
+        solver.setMaxIter(parameters_.MaxIterations);
+        ColumnVector W(prob_->N);
+        for(int i=0; i<prob_->N; i++) W(i+1) = prob_->W(i,i);
+        solver.setXScale(W);
+        solver.optimize();
+        ColumnVector sol = nlf->getXc();
+        for(int i=0; i<prob_->N; i++) solution(0,i) = sol(i+1);
+        iter = solver.getIter();
+        feval = nlf->getFevals();
+        ret = solver.getReturnCode();
+        solver.cleanup();
+    }
+    CatchAll
+    {
+        Tracer::last->PrintTrace();
+        throw_pretty("OPT++ exception:"<<BaseException::what());
+    }
+
+    planning_time_ = timer.getDuration();
+
+    if(debug_)
+    {
+        HIGHLIGHT_NAMED(object_name_+" OptppIKGSS", "Time: "<<planning_time_<<" ,Status: "<<ret<<" , Iterations: "<<iter<<" ,Feval: "<<feval);
     }
 }
 
