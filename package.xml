@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>optpp_solver</name>
+  <version>0.0.0</version>
+  <description>The optpp_solver package</description>
+
+  <maintainer email="v.ivan@ed.ac.uk">Vladimir Ivan</maintainer>
+
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <depend>exotica</depend>
+  <depend>optpp_catkin</depend>
+
+  <export>
+    <exotica plugin="${prefix}/exotica_plugins.xml" />
+  </export>
+</package>
