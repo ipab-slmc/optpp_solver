@@ -173,4 +173,4 @@ private:
 typedef std::shared_ptr<exotica::OptppIKGSS> OptppIKGSS_ptr;
 
 }
-#endif // OPTPPIK_H
+#endif

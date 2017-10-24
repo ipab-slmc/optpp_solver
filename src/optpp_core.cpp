@@ -43,7 +43,7 @@ namespace exotica
 {
 
 UnconstrainedEndPoseProblemWrapper::UnconstrainedEndPoseProblemWrapper(UnconstrainedEndPoseProblem_ptr problem) :
-    problem_(problem), n_(problem_->getScene()->getSolver().getNumControlledJoints())
+    problem_(problem), n_(problem_->N)
 {
     if(problem_->getNominalPose().rows()>0) throw_pretty("OPT++ solvers don't support null-space optimization! "<<problem_->getNominalPose().rows());
 }
@@ -65,7 +65,6 @@ void UnconstrainedEndPoseProblemWrapper::update(int mode, int n, const ColumnVec
     Eigen::VectorXd x(n);
     for(int i=0; i<n; i++) x(i) = x_opp(i+1);
     problem_->Update(x);
-    Eigen::VectorXd yd = problem_->Phi - problem_->y;
 
     if (mode & NLPFunction)
     {
