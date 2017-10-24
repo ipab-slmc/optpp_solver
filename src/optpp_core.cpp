@@ -136,4 +136,135 @@ void FDNLF1WrapperUEPP::initFcn()
     }
 }
 
+
+
+
+
+
+
+
+
+UnconstrainedTimeIndexedProblemWrapper::UnconstrainedTimeIndexedProblemWrapper(UnconstrainedTimeIndexedProblem_ptr problem) :
+    problem_(problem), n_(problem_->N*(problem_->T-1))
+{
+
+}
+
+void UnconstrainedTimeIndexedProblemWrapper::updateCallback(int mode, int n, const ColumnVector& x, double& fx, ColumnVector& gx, int& result, void* data)
+{
+    reinterpret_cast<UnconstrainedTimeIndexedProblemWrapper*>(data)->update(mode, n, x, fx, gx, result);
+}
+
+void UnconstrainedTimeIndexedProblemWrapper::updateCallbackFD(int n, const ColumnVector& x, double& fx, int& result, void* data)
+{
+    ColumnVector gx;
+    reinterpret_cast<UnconstrainedTimeIndexedProblemWrapper*>(data)->update(NLPFunction, n, x, fx, gx, result);
+}
+
+void UnconstrainedTimeIndexedProblemWrapper::update(int mode, int n, const ColumnVector& x_opp, double& fx, ColumnVector& gx, int& result)
+{
+    if(n!=n_) throw_pretty("Invalid OPT++ state size, expecting "<<n_<<" got "<<n);
+    fx = 0.0;
+    Eigen::VectorXd x_next(problem_->N);
+    Eigen::VectorXd x(problem_->N);
+    Eigen::VectorXd x_prev = problem_->getInitialTrajectory()[0];
+    Eigen::VectorXd dx1(problem_->N);
+    Eigen::VectorXd dx2(problem_->N);
+    for(int i=0; i<problem_->N; i++) x_next(i) = x_opp((1)*problem_->N+i+1);
+
+    for(int t=1; t<problem_->T; t++)
+    {
+        x = x_next;
+        if(t<problem_->T-1)
+        {
+            for(int i=0; i<problem_->N; i++) x_next(i) = x_opp((t)*problem_->N+i+1);
+            dx2 = x_next-x;
+        }
+        else
+        {
+            dx2 = Eigen::VectorXd::Zero(problem_->N);
+        }
+        dx1 = x-x_prev;
+
+        problem_->Update(x, t);
+
+        if (mode & NLPFunction)
+        {
+            //HIGHLIGHT(t<<" "<<problem_->getScalarCost(t));
+            fx += problem_->getScalarCost(t) +
+                    dx1.transpose()*problem_->W*dx1 +
+                    dx2.transpose()*problem_->W*dx2;
+            result = NLPFunction;
+        }
+
+        if (mode & NLPGradient)
+        {
+            Eigen::VectorXd J = problem_->getScalarJacobian(t) +
+                    2*problem_->W*dx1
+                    -2*problem_->W*dx2;
+            for(int i=0; i<problem_->N; i++) gx((t-1)*problem_->N+i+1) = J(i);
+            result = NLPGradient;
+        }
+        x_prev = x;
+    }
+}
+
+void UnconstrainedTimeIndexedProblemWrapper::init(int n, ColumnVector& x)
+{
+    if(n!=n_) throw_pretty("Invalid OPT++ state size, expecting "<<n_<<" got "<<n);
+    const std::vector<Eigen::VectorXd>& init = problem_->getInitialTrajectory();
+    x.ReSize(n);
+    for(int t=1; t<problem_->T; t++)
+        for(int i=0; i<problem_->N; i++)
+            x((t-1)*problem_->N+i+1) = init[t](i);
+}
+
+std::shared_ptr<FDNLF1WrapperUTIP> UnconstrainedTimeIndexedProblemWrapper::getFDNLF1()
+{
+    return std::shared_ptr<FDNLF1WrapperUTIP>(new FDNLF1WrapperUTIP(*this));
+}
+
+std::shared_ptr<NLF1WrapperUTIP> UnconstrainedTimeIndexedProblemWrapper::getNLF1()
+{
+    return std::shared_ptr<NLF1WrapperUTIP>(new NLF1WrapperUTIP(*this));
+}
+
+NLF1WrapperUTIP::NLF1WrapperUTIP(const UnconstrainedTimeIndexedProblemWrapper& parent) : parent_(parent),
+    NLF1(parent.n_, UnconstrainedTimeIndexedProblemWrapper::updateCallback, nullptr, (void*)nullptr)
+{
+    vptr = reinterpret_cast<UnconstrainedTimeIndexedProblemWrapper*>(&parent_);
+}
+
+void NLF1WrapperUTIP::initFcn()
+{
+    if (init_flag == false)
+    {
+        parent_.init(dim, mem_xc);
+        init_flag = true;
+    }
+    else
+    {
+      parent_.init(dim, mem_xc);
+    }
+}
+
+FDNLF1WrapperUTIP::FDNLF1WrapperUTIP(const UnconstrainedTimeIndexedProblemWrapper& parent) : parent_(parent),
+    FDNLF1(parent.n_, UnconstrainedTimeIndexedProblemWrapper::updateCallbackFD, nullptr, (void*)nullptr)
+{
+    vptr = reinterpret_cast<UnconstrainedTimeIndexedProblemWrapper*>(&parent_);
+}
+
+void FDNLF1WrapperUTIP::initFcn()
+{
+    if (init_flag == false)
+    {
+        parent_.init(dim, mem_xc);
+        init_flag = true;
+    }
+    else
+    {
+      parent_.init(dim, mem_xc);
+    }
+}
+
 }

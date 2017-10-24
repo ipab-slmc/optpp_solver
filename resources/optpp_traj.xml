@@ -1,0 +1,39 @@
+<?xml version="1.0" ?>
+<PlannerDemoConfig>
+
+  <OptppTrajCG Name="MySolver" Debug="1">
+   <UseFiniteDifferences>0</UseFiniteDifferences>
+  </OptppTrajCG>
+
+  <UnconstrainedTimeIndexedProblem Name="MyProblem">
+
+    <PlanningScene>
+      <Scene>
+        <JointGroup>arm</JointGroup>
+        <URDF>{exotica_examples}/resources/robots/lwr_simplified.urdf</URDF>
+        <SRDF>{exotica_examples}/resources/robots/lwr_simplified.srdf</SRDF>
+        <Links>
+          <Link Name="TargetOffset" Transform="0.6 -0.1 0.5"/>
+          <Link Name="Target" Parent="TargetOffset" />
+        </Links>
+        <Trajectories>
+          <Trajectory Link="Target" File="{exotica_examples}/resources/scenes/figure_eight.traj" />
+        </Trajectories>
+      </Scene>
+    </PlanningScene>
+
+    <Maps>
+      <EffFrame Name="Frame">
+        <EndEffector>
+            <Frame Link="lwr_arm_6_link" LinkOffset="0 0 0.2 0.7071 0  0.7071 0" Base="Target" />
+        </EndEffector>
+      </EffFrame>
+    </Maps>
+   
+    <Rho>1e10</Rho>
+    <T>233</T>
+    <Tau>0.03</Tau>
+    <Wrate>1e4</Wrate>
+    <W> 7 6 5 4 3 2 1 </W>
+  </UnconstrainedTimeIndexedProblem>
+</PlannerDemoConfig>

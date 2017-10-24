@@ -8,7 +8,8 @@ find_package(catkin REQUIRED COMPONENTS
   optpp_catkin
 )
 
-AddInitializer(OptppIKLBFGS OptppIKCG OptppIKQNewton OptppIKFDNewton OptppIKGSS)
+AddInitializer(OptppIKLBFGS OptppIKCG OptppIKQNewton OptppIKFDNewton OptppIKGSS
+    OptppTrajLBFGS OptppTrajCG OptppTrajQNewton OptppTrajFDNewton OptppTrajGSS)
 GenInitializers()
 
 catkin_package(
@@ -25,7 +26,7 @@ include_directories(
 add_library(optpp_core src/optpp_core.cpp)
 target_link_libraries(optpp_core ${catkin_LIBRARIES})
 
-add_library(optpp_ik src/optpp_ik.cpp)
+add_library(optpp_ik src/optpp_ik.cpp src/optpp_traj.cpp)
 target_link_libraries(optpp_ik optpp_core ${catkin_LIBRARIES})
 add_dependencies(optpp_ik optpp_core ${PROJECT_NAME}_initializers)
 

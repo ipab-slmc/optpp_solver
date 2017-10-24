@@ -45,6 +45,7 @@
 #include <optpp_catkin/NLF.h>
 #include <optpp_catkin/newmat.h>
 #include <exotica/Problems/UnconstrainedEndPoseProblem.h>
+#include <exotica/Problems/UnconstrainedTimeIndexedProblem.h>
 
 using namespace OPTPP;
 using namespace NEWMAT;
@@ -53,8 +54,11 @@ namespace exotica
 {
 
 class UnconstrainedEndPoseProblemWrapper;
+class UnconstrainedTimeIndexedProblemWrapper;
 class NLF1WrapperUEPP;
 class FDNLF1WrapperUEPP;
+class NLF1WrapperUTIP;
+class FDNLF1WrapperUTIP;
 
 class UnconstrainedEndPoseProblemWrapper
 {
@@ -90,6 +94,46 @@ public:
     virtual void initFcn();
 protected:
     UnconstrainedEndPoseProblemWrapper parent_;
+};
+
+
+
+
+
+class UnconstrainedTimeIndexedProblemWrapper
+{
+public:
+    UnconstrainedTimeIndexedProblemWrapper(UnconstrainedTimeIndexedProblem_ptr problem);
+    static void updateCallback(int mode, int n, const ColumnVector& x, double& fx, ColumnVector& gx, int& result, void* data);
+    static void updateCallbackFD(int n, const ColumnVector& x, double& fx, int& result, void* data);
+
+    void update(int mode, int n, const ColumnVector& x, double& fx, ColumnVector& gx, int& result);
+    void init(int n, ColumnVector& x);
+
+    std::shared_ptr<FDNLF1WrapperUTIP> getFDNLF1();
+    std::shared_ptr<NLF1WrapperUTIP> getNLF1();
+
+
+    UnconstrainedTimeIndexedProblem_ptr problem_;
+    int n_;
+};
+
+class NLF1WrapperUTIP : public virtual NLF1
+{
+public:
+    NLF1WrapperUTIP(const UnconstrainedTimeIndexedProblemWrapper& parent);
+    virtual void initFcn();
+protected:
+    UnconstrainedTimeIndexedProblemWrapper parent_;
+};
+
+class FDNLF1WrapperUTIP : public virtual FDNLF1
+{
+public:
+    FDNLF1WrapperUTIP(const UnconstrainedTimeIndexedProblemWrapper& parent);
+    virtual void initFcn();
+protected:
+    UnconstrainedTimeIndexedProblemWrapper parent_;
 };
 
 }
