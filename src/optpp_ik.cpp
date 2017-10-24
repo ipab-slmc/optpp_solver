@@ -84,7 +84,7 @@ void OptppIKLBFGS::Solve(Eigen::MatrixXd& solution)
             nlf = std::static_pointer_cast<NLP1>(UnconstrainedEndPoseProblemWrapper(prob_).getNLF1());
         }
         OPTPP::OptLBFGS solver(nlf.get());
-        solver.setGradTol(parameters_.GradienTolerance);
+        solver.setGradTol(parameters_.GradientTolerance);
         solver.setMaxBacktrackIter(parameters_.MaxBacktrackIterations);
         solver.setLineSearchTol(parameters_.LineSearchTolerance);
         solver.setMaxIter(parameters_.MaxIterations);
@@ -148,7 +148,7 @@ void OptppIKCG::Solve(Eigen::MatrixXd& solution)
             nlf = std::static_pointer_cast<NLP1>(UnconstrainedEndPoseProblemWrapper(prob_).getNLF1());
         }
         OPTPP::OptCG solver(nlf.get());
-        solver.setGradTol(parameters_.GradienTolerance);
+        solver.setGradTol(parameters_.GradientTolerance);
         solver.setMaxBacktrackIter(parameters_.MaxBacktrackIterations);
         solver.setLineSearchTol(parameters_.LineSearchTolerance);
         solver.setMaxIter(parameters_.MaxIterations);
@@ -213,7 +213,7 @@ void OptppIKQNewton::Solve(Eigen::MatrixXd& solution)
             nlf = std::static_pointer_cast<NLP1>(UnconstrainedEndPoseProblemWrapper(prob_).getNLF1());
         }
         OPTPP::OptQNewton solver(nlf.get());
-        solver.setGradTol(parameters_.GradienTolerance);
+        solver.setGradTol(parameters_.GradientTolerance);
         solver.setMaxBacktrackIter(parameters_.MaxBacktrackIterations);
         solver.setLineSearchTol(parameters_.LineSearchTolerance);
         solver.setMaxIter(parameters_.MaxIterations);
@@ -279,7 +279,7 @@ void OptppIKFDNewton::Solve(Eigen::MatrixXd& solution)
             nlf = std::static_pointer_cast<NLP1>(UnconstrainedEndPoseProblemWrapper(prob_).getNLF1());
         }
         OPTPP::OptFDNewton solver(nlf.get());
-        solver.setGradTol(parameters_.GradienTolerance);
+        solver.setGradTol(parameters_.GradientTolerance);
         solver.setMaxBacktrackIter(parameters_.MaxBacktrackIterations);
         solver.setLineSearchTol(parameters_.LineSearchTolerance);
         solver.setMaxIter(parameters_.MaxIterations);
