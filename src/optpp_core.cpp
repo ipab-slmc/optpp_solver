@@ -165,46 +165,42 @@ void UnconstrainedTimeIndexedProblemWrapper::update(int mode, int n, const Colum
 {
     if(n!=n_) throw_pretty("Invalid OPT++ state size, expecting "<<n_<<" got "<<n);
     fx = 0.0;
-    Eigen::VectorXd x_next(problem_->N);
+
     Eigen::VectorXd x(problem_->N);
     Eigen::VectorXd x_prev = problem_->getInitialTrajectory()[0];
-    Eigen::VectorXd dx1(problem_->N);
-    Eigen::VectorXd dx2(problem_->N);
-    for(int i=0; i<problem_->N; i++) x_next(i) = x_opp((1)*problem_->N+i+1);
+    Eigen::VectorXd x_prev_prev = x_prev;
+    double T = (double)problem_->T;
+    double ct = 1.0/problem_->tau/T;
+
+    Eigen::VectorXd dx;
 
     for(int t=1; t<problem_->T; t++)
     {
-        x = x_next;
-        if(t<problem_->T-1)
-        {
-            for(int i=0; i<problem_->N; i++) x_next(i) = x_opp((t)*problem_->N+i+1);
-            dx2 = x_next-x;
-        }
-        else
-        {
-            dx2 = Eigen::VectorXd::Zero(problem_->N);
-        }
-        dx1 = x-x_prev;
+        for(int i=0; i<problem_->N; i++) x(i) = x_opp((t-1)*problem_->N+i+1);
 
         problem_->Update(x, t);
+        dx = x - x_prev;
 
         if (mode & NLPFunction)
         {
-            //HIGHLIGHT(t<<" "<<problem_->getScalarCost(t));
-            fx += problem_->getScalarCost(t) +
-                    dx1.transpose()*problem_->W*dx1 +
-                    dx2.transpose()*problem_->W*dx2;
+            fx += problem_->getScalarCost(t)*ct +
+                    ct*dx.transpose()*problem_->W*dx;
             result = NLPFunction;
         }
 
         if (mode & NLPGradient)
         {
-            Eigen::VectorXd J = problem_->getScalarJacobian(t) +
-                    2*problem_->W*dx1
-                    -2*problem_->W*dx2;
+            Eigen::VectorXd J = problem_->getScalarJacobian(t)*ct
+                    + 2.0*ct*problem_->W*dx;
             for(int i=0; i<problem_->N; i++) gx((t-1)*problem_->N+i+1) = J(i);
+            if(t>1)
+            {
+                J=-2.0*ct*problem_->W*dx;
+                for(int i=0; i<problem_->N; i++) gx((t-2)*problem_->N+i+1) += J(i);
+            }
             result = NLPGradient;
         }
+        x_prev_prev = x_prev;
         x_prev = x;
     }
 }
