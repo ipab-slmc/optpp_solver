@@ -48,6 +48,11 @@ UnconstrainedEndPoseProblemWrapper::UnconstrainedEndPoseProblemWrapper(Unconstra
     if(problem_->getNominalPose().rows()>0) throw_pretty("OPT++ solvers don't support null-space optimization! "<<problem_->getNominalPose().rows());
 }
 
+void UnconstrainedEndPoseProblemWrapper::setSolver(std::shared_ptr<OPTPP::OptimizeClass> solver)
+{
+    solver_ = solver;
+}
+
 void UnconstrainedEndPoseProblemWrapper::updateCallback(int mode, int n, const ColumnVector& x, double& fx, ColumnVector& gx, int& result, void* data)
 {
     reinterpret_cast<UnconstrainedEndPoseProblemWrapper*>(data)->update(mode, n, x, fx, gx, result);
@@ -78,6 +83,13 @@ void UnconstrainedEndPoseProblemWrapper::update(int mode, int n, const ColumnVec
         for(int i=0; i<n; i++) gx(i+1) = J(i);
         result = NLPGradient;
     }
+
+    // Store cost
+    int iter = solver_->getIter();
+    if (iter == 1) hasBeenInitialized = true;
+    if (!hasBeenInitialized) iter = 0;
+    // HIGHLIGHT_NAMED("UEPPW::update", "iter: " << iter << " cost: " << fx)
+    problem_->setCostEvolution(iter, fx);
 }
 
 void UnconstrainedEndPoseProblemWrapper::init(int n, ColumnVector& x)
@@ -86,6 +98,7 @@ void UnconstrainedEndPoseProblemWrapper::init(int n, ColumnVector& x)
     Eigen::VectorXd x0 = problem_->applyStartState();
     x.ReSize(n);
     for(int i=0; i<n; i++) x(i+1) = x0(i);
+    hasBeenInitialized = false;
 }
 
 std::shared_ptr<FDNLF1WrapperUEPP> UnconstrainedEndPoseProblemWrapper::getFDNLF1()
@@ -150,6 +163,11 @@ UnconstrainedTimeIndexedProblemWrapper::UnconstrainedTimeIndexedProblemWrapper(U
 
 }
 
+void UnconstrainedTimeIndexedProblemWrapper::setSolver(std::shared_ptr<OPTPP::OptimizeClass> solver)
+{
+    solver_ = solver;
+}
+
 void UnconstrainedTimeIndexedProblemWrapper::updateCallback(int mode, int n, const ColumnVector& x, double& fx, ColumnVector& gx, int& result, void* data)
 {
     reinterpret_cast<UnconstrainedTimeIndexedProblemWrapper*>(data)->update(mode, n, x, fx, gx, result);
@@ -203,6 +221,13 @@ void UnconstrainedTimeIndexedProblemWrapper::update(int mode, int n, const Colum
         x_prev_prev = x_prev;
         x_prev = x;
     }
+
+    // Store cost
+    int iter = solver_->getIter();
+    if (iter == 1) hasBeenInitialized = true;
+    if (!hasBeenInitialized) iter = 0;
+    // HIGHLIGHT_NAMED("UTIPW::update", "iter: " << iter << " cost: " << fx)
+    problem_->setCostEvolution(iter, fx);
 }
 
 void UnconstrainedTimeIndexedProblemWrapper::init(int n, ColumnVector& x)
@@ -213,6 +238,7 @@ void UnconstrainedTimeIndexedProblemWrapper::init(int n, ColumnVector& x)
     for(int t=1; t<problem_->T; t++)
         for(int i=0; i<problem_->N; i++)
             x((t-1)*problem_->N+i+1) = init[t](i);
+    hasBeenInitialized = false;
 }
 
 std::shared_ptr<FDNLF1WrapperUTIP> UnconstrainedTimeIndexedProblemWrapper::getFDNLF1()
