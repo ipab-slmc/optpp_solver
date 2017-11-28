@@ -185,7 +185,6 @@ void UnconstrainedTimeIndexedProblemWrapper::update(int mode, int n, const Colum
 
     Eigen::VectorXd x(problem_->N);
     Eigen::VectorXd x_prev = problem_->getInitialTrajectory()[0];
-    Eigen::VectorXd x_prev_prev = x_prev;
     double T = (double)problem_->T;
     double ct = 1.0/problem_->tau/T;
 
@@ -220,7 +219,6 @@ void UnconstrainedTimeIndexedProblemWrapper::update(int mode, int n, const Colum
             }
             result = NLPGradient;
         }
-        x_prev_prev = x_prev;
         x_prev = x;
     }
 
