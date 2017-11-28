@@ -41,6 +41,7 @@
 
 #include <memory>
 
+#include <optpp_catkin/Opt.h>
 #include <optpp_catkin/NLP.h>
 #include <optpp_catkin/NLF.h>
 #include <optpp_catkin/newmat.h>
@@ -67,6 +68,8 @@ public:
     static void updateCallback(int mode, int n, const ColumnVector& x, double& fx, ColumnVector& gx, int& result, void* data);
     static void updateCallbackFD(int n, const ColumnVector& x, double& fx, int& result, void* data);
 
+    void setSolver(std::shared_ptr<OPTPP::OptimizeClass> solver);
+
     void update(int mode, int n, const ColumnVector& x, double& fx, ColumnVector& gx, int& result);
     void init(int n, ColumnVector& x);
 
@@ -76,6 +79,9 @@ public:
 
     UnconstrainedEndPoseProblem_ptr problem_;
     int n_;
+    std::shared_ptr<OPTPP::OptimizeClass> solver_;
+
+    bool hasBeenInitialized = false;
 };
 
 class NLF1WrapperUEPP : public virtual NLF1
@@ -83,6 +89,7 @@ class NLF1WrapperUEPP : public virtual NLF1
 public:
     NLF1WrapperUEPP(const UnconstrainedEndPoseProblemWrapper& parent);
     virtual void initFcn();
+    void setSolver(std::shared_ptr<OPTPP::OptimizeClass> solver) { parent_.setSolver(solver); };
 protected:
     UnconstrainedEndPoseProblemWrapper parent_;
 };
@@ -92,6 +99,7 @@ class FDNLF1WrapperUEPP : public virtual FDNLF1
 public:
     FDNLF1WrapperUEPP(const UnconstrainedEndPoseProblemWrapper& parent);
     virtual void initFcn();
+    void setSolver(std::shared_ptr<OPTPP::OptimizeClass> solver) { parent_.setSolver(solver); };
 protected:
     UnconstrainedEndPoseProblemWrapper parent_;
 };
@@ -107,6 +115,8 @@ public:
     static void updateCallback(int mode, int n, const ColumnVector& x, double& fx, ColumnVector& gx, int& result, void* data);
     static void updateCallbackFD(int n, const ColumnVector& x, double& fx, int& result, void* data);
 
+    void setSolver(std::shared_ptr<OPTPP::OptimizeClass> solver);
+
     void update(int mode, int n, const ColumnVector& x, double& fx, ColumnVector& gx, int& result);
     void init(int n, ColumnVector& x);
 
@@ -116,6 +126,9 @@ public:
 
     UnconstrainedTimeIndexedProblem_ptr problem_;
     int n_;
+    std::shared_ptr<OPTPP::OptimizeClass> solver_;
+
+    bool hasBeenInitialized = false;
 };
 
 class NLF1WrapperUTIP : public virtual NLF1
@@ -123,6 +136,7 @@ class NLF1WrapperUTIP : public virtual NLF1
 public:
     NLF1WrapperUTIP(const UnconstrainedTimeIndexedProblemWrapper& parent);
     virtual void initFcn();
+    void setSolver(std::shared_ptr<OPTPP::OptimizeClass> solver) { parent_.setSolver(solver); };
 protected:
     UnconstrainedTimeIndexedProblemWrapper parent_;
 };
@@ -132,6 +146,7 @@ class FDNLF1WrapperUTIP : public virtual FDNLF1
 public:
     FDNLF1WrapperUTIP(const UnconstrainedTimeIndexedProblemWrapper& parent);
     virtual void initFcn();
+    void setSolver(std::shared_ptr<OPTPP::OptimizeClass> solver) { parent_.setSolver(solver); };
 protected:
     UnconstrainedTimeIndexedProblemWrapper parent_;
 };
