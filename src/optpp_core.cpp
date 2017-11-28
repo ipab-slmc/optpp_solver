@@ -182,7 +182,6 @@ void UnconstrainedTimeIndexedProblemWrapper::updateCallbackFD(int n, const Colum
 void UnconstrainedTimeIndexedProblemWrapper::update(int mode, int n, const ColumnVector& x_opp, double& fx, ColumnVector& gx, int& result)
 {
     if(n!=n_) throw_pretty("Invalid OPT++ state size, expecting "<<n_<<" got "<<n);
-    fx = 0.0;
 
     Eigen::VectorXd x(problem_->N);
     Eigen::VectorXd x_prev = problem_->getInitialTrajectory()[0];
@@ -191,6 +190,9 @@ void UnconstrainedTimeIndexedProblemWrapper::update(int mode, int n, const Colum
     double ct = 1.0/problem_->tau/T;
 
     Eigen::VectorXd dx;
+
+    problem_->Update(x_prev, 0);
+    fx = problem_->getScalarTaskCost(0);
 
     for(int t=1; t<problem_->T; t++)
     {
