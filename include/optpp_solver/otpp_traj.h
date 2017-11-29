@@ -1,11 +1,5 @@
 /*
- *  Created on: 19 Oct 2017
  *      Author: Vladimir Ivan
- *
- *  This code is based on algorithm developed by Marc Toussaint
- *  M. Toussaint: Robot Trajectory Optimization using Approximate Inference. In Proc. of the Int. Conf. on Machine Learning (ICML 2009), 1049-1056, ACM, 2009.
- *  http://ipvs.informatik.uni-stuttgart.de/mlr/papers/09-toussaint-ICML.pdf
- *  Original code available at http://ipvs.informatik.uni-stuttgart.de/mlr/marc/source-code/index.html
  *
  * Copyright (c) 2017, University Of Edinburgh
  * All rights reserved.
@@ -47,6 +41,8 @@
 #include <optpp_solver/OptppTrajLBFGSInitializer.h>
 #include <optpp_solver/OptppTrajQNewtonInitializer.h>
 #include <optpp_solver/optpp_core.h>
+#include <optpp_solver/OptppTrajBCQNewtonInitializer.h>
+#include <optpp_solver/OptppTrajFDNIPSInitializer.h>
 
 namespace exotica
 {
@@ -154,5 +150,55 @@ private:
     UnconstrainedTimeIndexedProblem_ptr prob_;  // Shared pointer to the planning problem.
 };
 typedef std::shared_ptr<exotica::OptppTrajGSS> OptppTrajGSS_ptr;
+
+
+/// \brief Bound constrained quasi newton IK solver
+class OptppTrajBCQNewton : public MotionSolver, public Instantiable<OptppTrajBCQNewtonInitializer>
+{
+public:
+    OptppTrajBCQNewton() {}
+    virtual ~OptppTrajBCQNewton() {}
+
+    virtual void Instantiate(OptppTrajBCQNewtonInitializer& init) { parameters_ = init;}
+
+    virtual void Solve(Eigen::MatrixXd& solution);
+
+    virtual void specifyProblem(PlanningProblem_ptr pointer);
+
+    BoundedTimeIndexedProblem_ptr& getProblem() { return prob_;}
+
+    double planning_time_;
+
+private:
+    OptppTrajBCQNewtonInitializer parameters_;
+
+    BoundedTimeIndexedProblem_ptr prob_;  // Shared pointer to the planning problem.
+};
+typedef std::shared_ptr<exotica::OptppTrajBCQNewton> OptppTrajBCQNewton_ptr;
+
+/// \brief Bound constrained finite-difference nonlinear interior-point method with line-search IK solver
+class OptppTrajFDNIPS : public MotionSolver, public Instantiable<OptppTrajFDNIPSInitializer>
+{
+public:
+    OptppTrajFDNIPS() {}
+    virtual ~OptppTrajFDNIPS() {}
+
+    virtual void Instantiate(OptppTrajFDNIPSInitializer& init) { parameters_ = init;}
+
+    virtual void Solve(Eigen::MatrixXd& solution);
+
+    virtual void specifyProblem(PlanningProblem_ptr pointer);
+
+    BoundedTimeIndexedProblem_ptr& getProblem() { return prob_;}
+
+    double planning_time_;
+
+private:
+    OptppTrajFDNIPSInitializer parameters_;
+
+    BoundedTimeIndexedProblem_ptr prob_;  // Shared pointer to the planning problem.
+};
+typedef std::shared_ptr<exotica::OptppTrajFDNIPS> OptppTrajFDNIPS_ptr;
+
 }
 #endif

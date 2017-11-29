@@ -1,11 +1,5 @@
 /*
- *  Created on: 19 Oct 2017
  *      Author: Vladimir Ivan
- *
- *  This code is based on algorithm developed by Marc Toussaint
- *  M. Toussaint: Robot Trajectory Optimization using Approximate Inference. In Proc. of the Int. Conf. on Machine Learning (ICML 2009), 1049-1056, ACM, 2009.
- *  http://ipvs.informatik.uni-stuttgart.de/mlr/papers/09-toussaint-ICML.pdf
- *  Original code available at http://ipvs.informatik.uni-stuttgart.de/mlr/marc/source-code/index.html
  *
  * Copyright (c) 2017, University Of Edinburgh
  * All rights reserved.
@@ -37,6 +31,14 @@
  */
 
 #include <optpp_solver/optpp_core.h>
+#include <optpp_catkin/Constraint.h>
+#include <optpp_catkin/CompoundConstraint.h>
+#include <optpp_catkin/BoundConstraint.h>
+#include <optpp_catkin/LinearEquation.h>
+#include <optpp_catkin/LinearInequality.h>
+#include <optpp_catkin/NonLinearEquation.h>
+#include <optpp_catkin/NonLinearInequality.h>
+#include <optpp_catkin/NonLinearConstraint.h>
 #include <Eigen/Dense>
 
 namespace exotica
@@ -46,22 +48,7 @@ UnconstrainedEndPoseProblemWrapper::UnconstrainedEndPoseProblemWrapper(Unconstra
     if (problem_->getNominalPose().rows() > 0) throw_pretty("OPT++ solvers don't support null-space optimization! " << problem_->getNominalPose().rows());
 }
 
-void UnconstrainedEndPoseProblemWrapper::setSolver(std::shared_ptr<OPTPP::OptimizeClass> solver)
-{
-    solver_ = solver;
-}
-
-void UnconstrainedEndPoseProblemWrapper::updateCallback(int mode, int n, const ColumnVector& x, double& fx, ColumnVector& gx, int& result, void* data)
-{
-    reinterpret_cast<UnconstrainedEndPoseProblemWrapper*>(data)->update(mode, n, x, fx, gx, result);
-}
-
-void UnconstrainedEndPoseProblemWrapper::updateCallbackFD(int n, const ColumnVector& x, double& fx, int& result, void* data)
-{
-    ColumnVector gx;
-    reinterpret_cast<UnconstrainedEndPoseProblemWrapper*>(data)->update(NLPFunction, n, x, fx, gx, result);
-}
-
+template<>
 void UnconstrainedEndPoseProblemWrapper::update(int mode, int n, const ColumnVector& x_opp, double& fx, ColumnVector& gx, int& result)
 {
     if (n != n_) throw_pretty("Invalid OPT++ state size, expecting " << n_ << " got " << n);
@@ -90,83 +77,76 @@ void UnconstrainedEndPoseProblemWrapper::update(int mode, int n, const ColumnVec
     problem_->setCostEvolution(iter, fx);
 }
 
+template<>
 void UnconstrainedEndPoseProblemWrapper::init(int n, ColumnVector& x)
 {
     if (n != n_) throw_pretty("Invalid OPT++ state size, expecting " << n_ << " got " << n);
+    n=n_ = problem_->N;
     Eigen::VectorXd x0 = problem_->applyStartState();
     x.ReSize(n);
     for (int i = 0; i < n; i++) x(i + 1) = x0(i);
     hasBeenInitialized = false;
 }
 
-std::shared_ptr<FDNLF1WrapperUEPP> UnconstrainedEndPoseProblemWrapper::getFDNLF1()
-{
-    return std::shared_ptr<FDNLF1WrapperUEPP>(new FDNLF1WrapperUEPP(*this));
-}
+template<>
+CompoundConstraint* UnconstrainedEndPoseProblemWrapper::createConstraints() {return nullptr;}
 
-std::shared_ptr<NLF1WrapperUEPP> UnconstrainedEndPoseProblemWrapper::getNLF1()
-{
-    return std::shared_ptr<NLF1WrapperUEPP>(new NLF1WrapperUEPP(*this));
-}
 
-NLF1WrapperUEPP::NLF1WrapperUEPP(const UnconstrainedEndPoseProblemWrapper& parent) : parent_(parent),
-                                                                                     NLF1(parent.n_, UnconstrainedEndPoseProblemWrapper::updateCallback, nullptr, (void*)nullptr)
+template<>
+void BoundedEndPoseProblemWrapper::update(int mode, int n, const ColumnVector& x_opp, double& fx, ColumnVector& gx, int& result)
 {
-    vptr = reinterpret_cast<UnconstrainedEndPoseProblemWrapper*>(&parent_);
-}
+    if(n!=n_) throw_pretty("Invalid OPT++ state size, expecting "<<n_<<" got "<<n);
+    Eigen::VectorXd x(n);
+    for(int i=0; i<n; i++) x(i) = x_opp(i+1);
+    problem_->Update(x);
 
-void NLF1WrapperUEPP::initFcn()
-{
-    if (init_flag == false)
+    if (mode & NLPFunction)
     {
-        parent_.init(dim, mem_xc);
-        init_flag = true;
+        fx = problem_->getScalarCost();
+        result = NLPFunction;
+    }
+
+    if (mode & NLPGradient)
+    {
+        Eigen::VectorXd J = problem_->getScalarJacobian();
+        for(int i=0; i<n; i++) gx(i+1) = J(i);
+        result = NLPGradient;
+    }
+}
+
+template<>
+void BoundedEndPoseProblemWrapper::init(int n, ColumnVector& x)
+{
+    n=n_ = problem_->N;
+    Eigen::VectorXd x0 = problem_->applyStartState();
+    x.ReSize(n);
+    for(int i=0; i<n; i++) x(i+1) = x0(i);
+}
+
+template<>
+CompoundConstraint* BoundedEndPoseProblemWrapper::createConstraints()
+{
+    ColumnVector lower(n_);
+    ColumnVector upper(n_);
+    std::vector<double> bounds = problem_->getBounds();
+    if(bounds.size()==n_*2)
+    {
+        for(int i=0; i<n_; i++)
+        {
+            lower(i+1) = bounds[i];
+            upper(i+1) = bounds[i+n_];
+        }
+        Constraint bc = new BoundConstraint(n_, lower, upper);
+        return new CompoundConstraint(bc);
     }
     else
     {
-        parent_.init(dim, mem_xc);
+        throw_pretty("Invalid BC");
     }
 }
 
-FDNLF1WrapperUEPP::FDNLF1WrapperUEPP(const UnconstrainedEndPoseProblemWrapper& parent) : parent_(parent),
-                                                                                         FDNLF1(parent.n_, UnconstrainedEndPoseProblemWrapper::updateCallbackFD, nullptr, (void*)nullptr)
-{
-    vptr = reinterpret_cast<UnconstrainedEndPoseProblemWrapper*>(&parent_);
-}
 
-void FDNLF1WrapperUEPP::initFcn()
-{
-    if (init_flag == false)
-    {
-        parent_.init(dim, mem_xc);
-        init_flag = true;
-    }
-    else
-    {
-        parent_.init(dim, mem_xc);
-    }
-}
-
-UnconstrainedTimeIndexedProblemWrapper::UnconstrainedTimeIndexedProblemWrapper(UnconstrainedTimeIndexedProblem_ptr problem) : problem_(problem), n_(problem_->N * (problem_->getT() - 1))
-{
-}
-
-void UnconstrainedTimeIndexedProblemWrapper::setSolver(std::shared_ptr<OPTPP::OptimizeClass> solver)
-{
-    solver_ = solver;
-}
-
-void UnconstrainedTimeIndexedProblemWrapper::updateCallback(int mode, int n, const ColumnVector& x, double& fx, ColumnVector& gx, int& result, void* data)
-{
-    reinterpret_cast<UnconstrainedTimeIndexedProblemWrapper*>(data)->update(mode, n, x, fx, gx, result);
-}
-
-void UnconstrainedTimeIndexedProblemWrapper::updateCallbackFD(int n, const ColumnVector& x, double& fx, int& result, void* data)
-{
-    ColumnVector gx;
-    reinterpret_cast<UnconstrainedTimeIndexedProblemWrapper*>(data)->update(NLPFunction, n, x, fx, gx, result);
-}
-
+template<>
 void UnconstrainedTimeIndexedProblemWrapper::update(int mode, int n, const ColumnVector& x_opp, double& fx, ColumnVector& gx, int& result)
 {
     if (n != n_) throw_pretty("Invalid OPT++ state size, expecting " << n_ << " got " << n);
@@ -214,9 +194,11 @@ void UnconstrainedTimeIndexedProblemWrapper::update(int mode, int n, const Colum
     problem_->setCostEvolution(iter, fx);
 }
 
+template<>
 void UnconstrainedTimeIndexedProblemWrapper::init(int n, ColumnVector& x)
 {
     if (n != n_) throw_pretty("Invalid OPT++ state size, expecting " << n_ << " got " << n);
+    n=n_ = problem_->N*(problem_->T-1);
     const std::vector<Eigen::VectorXd>& init = problem_->getInitialTrajectory();
     x.ReSize(n);
     for (int t = 1; t < problem_->getT(); t++)
@@ -225,51 +207,89 @@ void UnconstrainedTimeIndexedProblemWrapper::init(int n, ColumnVector& x)
     hasBeenInitialized = false;
 }
 
-std::shared_ptr<FDNLF1WrapperUTIP> UnconstrainedTimeIndexedProblemWrapper::getFDNLF1()
-{
-    return std::shared_ptr<FDNLF1WrapperUTIP>(new FDNLF1WrapperUTIP(*this));
-}
+template<>
+CompoundConstraint* UnconstrainedTimeIndexedProblemWrapper::createConstraints() {return nullptr;}
 
-std::shared_ptr<NLF1WrapperUTIP> UnconstrainedTimeIndexedProblemWrapper::getNLF1()
+template<>
+void BoundedTimeIndexedProblemWrapper::update(int mode, int n, const ColumnVector& x_opp, double& fx, ColumnVector& gx, int& result)
 {
-    return std::shared_ptr<NLF1WrapperUTIP>(new NLF1WrapperUTIP(*this));
-}
+    if(n!=n_) throw_pretty("Invalid OPT++ state size, expecting "<<n_<<" got "<<n);
+    fx = 0.0;
 
-NLF1WrapperUTIP::NLF1WrapperUTIP(const UnconstrainedTimeIndexedProblemWrapper& parent) : parent_(parent),
-                                                                                         NLF1(parent.n_, UnconstrainedTimeIndexedProblemWrapper::updateCallback, nullptr, (void*)nullptr)
-{
-    vptr = reinterpret_cast<UnconstrainedTimeIndexedProblemWrapper*>(&parent_);
-}
+    Eigen::VectorXd x(problem_->N);
+    Eigen::VectorXd x_prev = problem_->getInitialTrajectory()[0];
+    Eigen::VectorXd x_prev_prev = x_prev;
+    double T = (double)problem_->T;
+    double ct = 1.0/problem_->tau/T;
 
-void NLF1WrapperUTIP::initFcn()
-{
-    if (init_flag == false)
+    Eigen::VectorXd dx;
+
+    for(int t=1; t<problem_->T; t++)
     {
-        parent_.init(dim, mem_xc);
-        init_flag = true;
+        for(int i=0; i<problem_->N; i++) x(i) = x_opp((t-1)*problem_->N+i+1);
+
+        problem_->Update(x, t);
+        dx = x - x_prev;
+        HIGHLIGHT(t<<"\n"<<problem_->getScalarJacobian(t).transpose());
+        if (mode & NLPFunction)
+        {
+            fx += problem_->getScalarCost(t)*ct +
+                    ct*dx.transpose()*problem_->W*dx;
+            result = NLPFunction;
+        }
+
+        if (mode & NLPGradient)
+        {
+            Eigen::VectorXd J = problem_->getScalarJacobian(t)*ct
+                    + 2.0*ct*problem_->W*dx;
+            for(int i=0; i<problem_->N; i++) gx((t-1)*problem_->N+i+1) = J(i);
+            if(t>1)
+            {
+                J=-2.0*ct*problem_->W*dx;
+                for(int i=0; i<problem_->N; i++) gx((t-2)*problem_->N+i+1) += J(i);
+            }
+            result = NLPGradient;
+        }
+        x_prev_prev = x_prev;
+        x_prev = x;
+    }
+}
+
+template<>
+void BoundedTimeIndexedProblemWrapper::init(int n, ColumnVector& x)
+{
+    n=n_ = problem_->N*(problem_->T-1);
+    const std::vector<Eigen::VectorXd>& init = problem_->getInitialTrajectory();
+    x.ReSize(n);
+    for(int t=1; t<problem_->T; t++)
+        for(int i=0; i<problem_->N; i++)
+            x((t-1)*problem_->N+i+1) = init[t](i);
+}
+
+template<>
+CompoundConstraint* BoundedTimeIndexedProblemWrapper::createConstraints()
+{
+    int T = problem_->T-1;
+    int n = problem_->N;
+    ColumnVector lower(n*T);
+    ColumnVector upper(n*T);
+    std::vector<double> bounds = problem_->getBounds();
+    if(bounds.size()==n*2)
+    {
+        for(int t=0;t<T;t++)
+        {
+            for(int i=0; i<n; i++)
+            {
+                lower(t*n+i+1) = bounds[i];
+                upper(t*n+i+1) = bounds[i+n];
+            }
+        }
+        Constraint bc = new BoundConstraint(n*T, lower, upper);
+        return new CompoundConstraint(bc);
     }
     else
     {
-        parent_.init(dim, mem_xc);
-    }
-}
-
-FDNLF1WrapperUTIP::FDNLF1WrapperUTIP(const UnconstrainedTimeIndexedProblemWrapper& parent) : parent_(parent),
-                                                                                             FDNLF1(parent.n_, UnconstrainedTimeIndexedProblemWrapper::updateCallbackFD, nullptr, (void*)nullptr)
-{
-    vptr = reinterpret_cast<UnconstrainedTimeIndexedProblemWrapper*>(&parent_);
-}
-
-void FDNLF1WrapperUTIP::initFcn()
-{
-    if (init_flag == false)
-    {
-        parent_.init(dim, mem_xc);
-        init_flag = true;
-    }
-    else
-    {
-        parent_.init(dim, mem_xc);
+        throw_pretty("Invalid BC");
     }
 }
 }

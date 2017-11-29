@@ -1,9 +1,9 @@
 <?xml version="1.0" ?>
 <IKSolverDemoConfig>
 
-  <OptppIKLBFGS Name="MySolver" Debug="1" />
+  <OptppIKBCQNewton Name="MySolver" Debug="1" UseFiniteDifferences="0"/>
 
-  <UnconstrainedEndPoseProblem Name="MyProblem">
+  <BoundedEndPoseProblem Name="MyProblem">
 
     <PlanningScene>
       <Scene>
@@ -23,7 +23,10 @@
     <Cost>
       <Task Task="Position"/>
     </Cost>
+    <StartState>-1 1 0 1 0 1 0</StartState>
+    <LowerBound>-2 -2 -2 -2 -2 -2 -2</LowerBound>
+    <UpperBound> 0  2  2  2  2  2  2</UpperBound>
     <W> 7 6 5 4 3 2 1 </W>
-  </UnconstrainedEndPoseProblem>
+  </BoundedEndPoseProblem>
 
 </IKSolverDemoConfig>

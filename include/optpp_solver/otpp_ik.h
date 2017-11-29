@@ -1,11 +1,5 @@
 /*
- *  Created on: 19 Oct 2017
  *      Author: Vladimir Ivan
- *
- *  This code is based on algorithm developed by Marc Toussaint
- *  M. Toussaint: Robot Trajectory Optimization using Approximate Inference. In Proc. of the Int. Conf. on Machine Learning (ICML 2009), 1049-1056, ACM, 2009.
- *  http://ipvs.informatik.uni-stuttgart.de/mlr/papers/09-toussaint-ICML.pdf
- *  Original code available at http://ipvs.informatik.uni-stuttgart.de/mlr/marc/source-code/index.html
  *
  * Copyright (c) 2017, University Of Edinburgh
  * All rights reserved.
@@ -47,6 +41,8 @@
 #include <optpp_solver/OptppIKLBFGSInitializer.h>
 #include <optpp_solver/OptppIKQNewtonInitializer.h>
 #include <optpp_solver/optpp_core.h>
+#include <optpp_solver/OptppIKBCQNewtonInitializer.h>
+#include <optpp_solver/OptppIKFDNIPSInitializer.h>
 
 namespace exotica
 {
@@ -154,5 +150,54 @@ private:
     UnconstrainedEndPoseProblem_ptr prob_;  // Shared pointer to the planning problem.
 };
 typedef std::shared_ptr<exotica::OptppIKGSS> OptppIKGSS_ptr;
+
+/// \brief Bound constrained quasi newton IK solver
+class OptppIKBCQNewton : public MotionSolver, public Instantiable<OptppIKBCQNewtonInitializer>
+{
+public:
+    OptppIKBCQNewton() {}
+    virtual ~OptppIKBCQNewton() {}
+
+    virtual void Instantiate(OptppIKBCQNewtonInitializer& init) { parameters_ = init;}
+
+    virtual void Solve(Eigen::MatrixXd& solution);
+
+    virtual void specifyProblem(PlanningProblem_ptr pointer);
+
+    BoundedEndPoseProblem_ptr& getProblem() { return prob_;}
+
+    double planning_time_;
+
+private:
+    OptppIKBCQNewtonInitializer parameters_;
+
+    BoundedEndPoseProblem_ptr prob_;  // Shared pointer to the planning problem.
+};
+typedef std::shared_ptr<exotica::OptppIKBCQNewton> OptppIKBCQNewton_ptr;
+
+/// \brief Bound constrained finite-difference nonlinear interior-point method with line-search IK solver
+class OptppIKFDNIPS : public MotionSolver, public Instantiable<OptppIKFDNIPSInitializer>
+{
+public:
+    OptppIKFDNIPS() {}
+    virtual ~OptppIKFDNIPS() {}
+
+    virtual void Instantiate(OptppIKFDNIPSInitializer& init) { parameters_ = init;}
+
+    virtual void Solve(Eigen::MatrixXd& solution);
+
+    virtual void specifyProblem(PlanningProblem_ptr pointer);
+
+    BoundedEndPoseProblem_ptr& getProblem() { return prob_;}
+
+    double planning_time_;
+
+private:
+    OptppIKFDNIPSInitializer parameters_;
+
+    BoundedEndPoseProblem_ptr prob_;  // Shared pointer to the planning problem.
+};
+typedef std::shared_ptr<exotica::OptppIKFDNIPS> OptppIKFDNIPS_ptr;
+
 }
 #endif

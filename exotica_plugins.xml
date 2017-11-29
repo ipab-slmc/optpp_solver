@@ -14,19 +14,31 @@
   <class name="exotica/OptppIKGSS" type="exotica::OptppIKGSS" base_class_type="exotica::MotionSolver">
     <description>OPT++ IK solver using generating set search method</description>
   </class>
+  <class name="exotica/OptppIKBCQNewton" type="exotica::OptppIKBCQNewton" base_class_type="exotica::MotionSolver">
+    <description>OPT++ Bound constrained IK solver using Newton method</description>
+  </class>
+  <class name="exotica/OptppIKFDNIPS" type="exotica::OptppIKFDNIPS" base_class_type="exotica::MotionSolver">
+    <description>OPT++ Bound constrained IK solver using non-linear interior point methods with finite differences</description>
+  </class>
   <class name="exotica/OptppTrajLBFGS" type="exotica::OptppTrajLBFGS" base_class_type="exotica::MotionSolver">
-    <description>OPT++ IK solver using LBFGS</description>
+    <description>OPT++ trajectory solver using LBFGS</description>
   </class>
   <class name="exotica/OptppTrajCG" type="exotica::OptppTrajCG" base_class_type="exotica::MotionSolver">
-    <description>OPT++ IK solver using conjugate gradient</description>
+    <description>OPT++ trajectory solver using conjugate gradient</description>
   </class>
   <class name="exotica/OptppTrajQNewton" type="exotica::OptppTrajQNewton" base_class_type="exotica::MotionSolver">
-    <description>OPT++ IK solver using Newton method</description>
+    <description>OPT++ trajectory solver using Newton method</description>
   </class>
   <class name="exotica/OptppTrajFDNewton" type="exotica::OptppTrajFDNewton" base_class_type="exotica::MotionSolver">
-    <description>OPT++ IK solver using Newton method with finite differences for estimating the Hessian</description>
+    <description>OPT++ trajectory solver using Newton method with finite differences for estimating the Hessian</description>
   </class>
   <class name="exotica/OptppTrajGSS" type="exotica::OptppTrajGSS" base_class_type="exotica::MotionSolver">
-    <description>OPT++ IK solver using generating set search method</description>
+    <description>OPT++ trajectory solver using generating set search method</description>
+  </class>
+  <class name="exotica/OptppTrajBCQNewton" type="exotica::OptppTrajBCQNewton" base_class_type="exotica::MotionSolver">
+    <description>OPT++ Bound constrained IK solver using Newton method</description>
+  </class>
+  <class name="exotica/OptppTrajFDNIPS" type="exotica::OptppTrajFDNIPS" base_class_type="exotica::MotionSolver">
+    <description>OPT++ Bound constrained IK solver using non-linear interior point methods with finite differences</description>
   </class>
 </library>

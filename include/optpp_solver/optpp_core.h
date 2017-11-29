@@ -1,11 +1,5 @@
 /*
- *  Created on: 19 Oct 2017
  *      Author: Vladimir Ivan
- *
- *  This code is based on algorithm developed by Marc Toussaint
- *  M. Toussaint: Robot Trajectory Optimization using Approximate Inference. In Proc. of the Int. Conf. on Machine Learning (ICML 2009), 1049-1056, ACM, 2009.
- *  http://ipvs.informatik.uni-stuttgart.de/mlr/papers/09-toussaint-ICML.pdf
- *  Original code available at http://ipvs.informatik.uni-stuttgart.de/mlr/marc/source-code/index.html
  *
  * Copyright (c) 2017, University Of Edinburgh
  * All rights reserved.
@@ -47,102 +41,124 @@
 #include <optpp_catkin/NLP.h>
 #include <optpp_catkin/Opt.h>
 #include <optpp_catkin/newmat.h>
+#include <exotica/Problems/BoundedEndPoseProblem.h>
+#include <exotica/Problems/BoundedTimeIndexedProblem.h>
+#include <exotica/Problems/EndPoseProblem.h>
+#include <exotica/Problems/TimeIndexedProblem.h>
 
 using namespace OPTPP;
 using namespace NEWMAT;
 
 namespace exotica
 {
-class UnconstrainedEndPoseProblemWrapper;
-class UnconstrainedTimeIndexedProblemWrapper;
-class NLF1WrapperUEPP;
-class FDNLF1WrapperUEPP;
-class NLF1WrapperUTIP;
-class FDNLF1WrapperUTIP;
 
-class UnconstrainedEndPoseProblemWrapper
+template<typename ProblemType> class NLF1Wrapper;
+template<typename ProblemType> class NLF1WrapperFD;
+template<typename ProblemType> class ProblemWrapper;
+
+template<typename ProblemType>
+class ProblemWrapper
 {
 public:
-    UnconstrainedEndPoseProblemWrapper(UnconstrainedEndPoseProblem_ptr problem);
-    static void updateCallback(int mode, int n, const ColumnVector& x, double& fx, ColumnVector& gx, int& result, void* data);
-    static void updateCallbackFD(int n, const ColumnVector& x, double& fx, int& result, void* data);
+    ProblemWrapper(std::shared_ptr<ProblemType> problem):
+        problem_(problem), n_(0)
+    {
+        ColumnVector dummy;
+        init(0, dummy);
+        constrains_ = createConstraints();
+    }
+
+    static void updateCallback(int mode, int n, const ColumnVector& x, double& fx, ColumnVector& gx, int& result, void* data)
+    {
+        reinterpret_cast<ProblemWrapper<ProblemType>*>(data)->update(mode, n, x, fx, gx, result);
+    }
+
+    static void updateCallbackFD(int n, const ColumnVector& x, double& fx, int& result, void* data)
+    {
+        ColumnVector gx;
+        reinterpret_cast<ProblemWrapper<ProblemType>*>(data)->update(NLPFunction, n, x, fx, gx, result);
+    }
 
     void setSolver(std::shared_ptr<OPTPP::OptimizeClass> solver);
 
     void update(int mode, int n, const ColumnVector& x, double& fx, ColumnVector& gx, int& result);
     void init(int n, ColumnVector& x);
+    CompoundConstraint* createConstraints();
 
-    std::shared_ptr<FDNLF1WrapperUEPP> getFDNLF1();
-    std::shared_ptr<NLF1WrapperUEPP> getNLF1();
+    std::shared_ptr<NLF1WrapperFD<ProblemType>> getFDNLF1()
+    {
+        return std::shared_ptr<NLF1WrapperFD<ProblemType>>(new NLF1WrapperFD<ProblemType>(*this));
+    }
 
-    UnconstrainedEndPoseProblem_ptr problem_;
+    std::shared_ptr<NLF1Wrapper<ProblemType>> getNLF1()
+    {
+        return std::shared_ptr<NLF1Wrapper<ProblemType>>(new NLF1Wrapper<ProblemType>(*this));
+    }
+
+
+    std::shared_ptr<ProblemType> problem_;
     int n_;
-    std::shared_ptr<OPTPP::OptimizeClass> solver_;
-
-    bool hasBeenInitialized = false;
+    CompoundConstraint* constrains_;
 };
 
-class NLF1WrapperUEPP : public virtual NLF1
+template<typename ProblemType>
+class NLF1Wrapper : public virtual NLF1
 {
 public:
-    NLF1WrapperUEPP(const UnconstrainedEndPoseProblemWrapper& parent);
-    virtual void initFcn();
-    void setSolver(std::shared_ptr<OPTPP::OptimizeClass> solver) { parent_.setSolver(solver); };
+    NLF1Wrapper(const ProblemWrapper<ProblemType>& parent): parent_(parent),
+        NLF1(parent.n_, ProblemWrapper<ProblemType>::updateCallback, nullptr, parent.constrains_, (void*)nullptr)
+    {
+        vptr = reinterpret_cast<ProblemWrapper<ProblemType>*>(&parent_);
+    }
+
+    virtual void initFcn()
+    {
+        if (init_flag == false)
+        {
+            parent_.init(dim, mem_xc);
+            init_flag = true;
+        }
+        else
+        {
+          parent_.init(dim, mem_xc);
+        }
+    }
 protected:
-    UnconstrainedEndPoseProblemWrapper parent_;
+    ProblemWrapper<ProblemType> parent_;
 };
 
-class FDNLF1WrapperUEPP : public virtual FDNLF1
+template<typename ProblemType>
+class NLF1WrapperFD : public virtual FDNLF1
 {
 public:
-    FDNLF1WrapperUEPP(const UnconstrainedEndPoseProblemWrapper& parent);
-    virtual void initFcn();
-    void setSolver(std::shared_ptr<OPTPP::OptimizeClass> solver) { parent_.setSolver(solver); };
+    NLF1WrapperFD(const ProblemWrapper<ProblemType>& parent): parent_(parent),
+        FDNLF1(parent.n_, ProblemWrapper<ProblemType>::updateCallbackFD, nullptr, parent.constrains_, (void*)nullptr)
+    {
+        vptr = reinterpret_cast<ProblemWrapper<ProblemType>*>(&parent_);
+    }
+
+    virtual void initFcn()
+    {
+        if (init_flag == false)
+        {
+            parent_.init(dim, mem_xc);
+            init_flag = true;
+        }
+        else
+        {
+          parent_.init(dim, mem_xc);
+        }
+    }
 protected:
-    UnconstrainedEndPoseProblemWrapper parent_;
+    ProblemWrapper<ProblemType> parent_;
 };
 
-class UnconstrainedTimeIndexedProblemWrapper
-{
-public:
-    UnconstrainedTimeIndexedProblemWrapper(UnconstrainedTimeIndexedProblem_ptr problem);
-    static void updateCallback(int mode, int n, const ColumnVector& x, double& fx, ColumnVector& gx, int& result, void* data);
-    static void updateCallbackFD(int n, const ColumnVector& x, double& fx, int& result, void* data);
-
-    void setSolver(std::shared_ptr<OPTPP::OptimizeClass> solver);
-
-    void update(int mode, int n, const ColumnVector& x, double& fx, ColumnVector& gx, int& result);
-    void init(int n, ColumnVector& x);
-
-    std::shared_ptr<FDNLF1WrapperUTIP> getFDNLF1();
-    std::shared_ptr<NLF1WrapperUTIP> getNLF1();
-
-    UnconstrainedTimeIndexedProblem_ptr problem_;
-    int n_;
-    std::shared_ptr<OPTPP::OptimizeClass> solver_;
-
-    bool hasBeenInitialized = false;
-};
-
-class NLF1WrapperUTIP : public virtual NLF1
-{
-public:
-    NLF1WrapperUTIP(const UnconstrainedTimeIndexedProblemWrapper& parent);
-    virtual void initFcn();
-    void setSolver(std::shared_ptr<OPTPP::OptimizeClass> solver) { parent_.setSolver(solver); };
-protected:
-    UnconstrainedTimeIndexedProblemWrapper parent_;
-};
-
-class FDNLF1WrapperUTIP : public virtual FDNLF1
-{
-public:
-    FDNLF1WrapperUTIP(const UnconstrainedTimeIndexedProblemWrapper& parent);
-    virtual void initFcn();
-    void setSolver(std::shared_ptr<OPTPP::OptimizeClass> solver) { parent_.setSolver(solver); };
-protected:
-    UnconstrainedTimeIndexedProblemWrapper parent_;
-};
+typedef ProblemWrapper<UnconstrainedEndPoseProblem> UnconstrainedEndPoseProblemWrapper;
+typedef ProblemWrapper<UnconstrainedTimeIndexedProblem> UnconstrainedTimeIndexedProblemWrapper;
+typedef ProblemWrapper<BoundedEndPoseProblem> BoundedEndPoseProblemWrapper;
+typedef ProblemWrapper<BoundedTimeIndexedProblem> BoundedTimeIndexedProblemWrapper;
+//typedef ProblemWrapper<EndPoseProblem> EndPoseProblemWrapper;
+//typedef ProblemWrapper<TimeIndexedProblem> TimeIndexedProblemWrapper;
 }
 
 #endif  // OPTPP_CORE_H

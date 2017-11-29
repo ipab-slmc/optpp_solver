@@ -1,12 +1,12 @@
 <?xml version="1.0" ?>
 <PlannerDemoConfig>
 
-  <OptppTrajLBFGS Name="MySolver" Debug="1">
+  <OptppTrajBCQNewton Name="MySolver" Debug="1">
    <UseFiniteDifferences>0</UseFiniteDifferences>
    <MaxIterations>1000</MaxIterations>
-  </OptppTrajLBFGS>
+  </OptppTrajBCQNewton>
 
-  <UnconstrainedTimeIndexedProblem Name="MyProblem">
+  <BoundedTimeIndexedProblem Name="MyProblem">
 
     <PlanningScene>
       <Scene>
@@ -34,11 +34,10 @@
     <Cost>
       <Task Task="Frame"/>
     </Cost>
-   
-    <Rho>1e4</Rho>
+
     <T>233</T>
     <Tau>0.03</Tau>
-    <Wrate>1e3</Wrate>
+    <Wrate>1e-1</Wrate>
     <W> 7 6 5 4 3 2 1 </W>
-  </UnconstrainedTimeIndexedProblem>
+  </BoundedTimeIndexedProblem>
 </PlannerDemoConfig>

@@ -9,7 +9,8 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 AddInitializer(OptppIKLBFGS OptppIKCG OptppIKQNewton OptppIKFDNewton OptppIKGSS
-    OptppTrajLBFGS OptppTrajCG OptppTrajQNewton OptppTrajFDNewton OptppTrajGSS)
+    OptppTrajLBFGS OptppTrajCG OptppTrajQNewton OptppTrajFDNewton OptppTrajGSS
+    OptppIKBCQNewton OptppIKFDNIPS OptppTrajBCQNewton OptppTrajFDNIPS)
 GenInitializers()
 
 catkin_package(
