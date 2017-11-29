@@ -202,20 +202,18 @@ void UnconstrainedTimeIndexedProblemWrapper::update(int mode, int n, const Colum
 
         if (mode & NLPFunction)
         {
-            fx += problem_->getScalarCost(t)*ct +
-                    ct*dx.transpose()*problem_->W*dx;
+            fx += problem_->getScalarTaskCost(t) + problem_->getScalarTransitionCost(t);
             result = NLPFunction;
         }
 
         if (mode & NLPGradient)
         {
-            Eigen::VectorXd J = problem_->getScalarJacobian(t)*ct
-                    + 2.0*ct*problem_->W*dx;
+            Eigen::VectorXd J_control = problem_->getScalarTransitionJacobian(t);
+            Eigen::VectorXd J = problem_->getScalarTaskJacobian(t) + J_control;
             for(int i=0; i<problem_->N; i++) gx((t-1)*problem_->N+i+1) = J(i);
             if(t>1)
             {
-                J=-2.0*ct*problem_->W*dx;
-                for(int i=0; i<problem_->N; i++) gx((t-2)*problem_->N+i+1) += J(i);
+                for(int i=0; i<problem_->N; i++) gx((t-2)*problem_->N+i+1) += -J_control(i);
             }
             result = NLPGradient;
         }
