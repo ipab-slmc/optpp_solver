@@ -41,19 +41,18 @@
 
 #include <memory>
 
-#include <optpp_catkin/Opt.h>
-#include <optpp_catkin/NLP.h>
-#include <optpp_catkin/NLF.h>
-#include <optpp_catkin/newmat.h>
 #include <exotica/Problems/UnconstrainedEndPoseProblem.h>
 #include <exotica/Problems/UnconstrainedTimeIndexedProblem.h>
+#include <optpp_catkin/NLF.h>
+#include <optpp_catkin/NLP.h>
+#include <optpp_catkin/Opt.h>
+#include <optpp_catkin/newmat.h>
 
 using namespace OPTPP;
 using namespace NEWMAT;
 
 namespace exotica
 {
-
 class UnconstrainedEndPoseProblemWrapper;
 class UnconstrainedTimeIndexedProblemWrapper;
 class NLF1WrapperUEPP;
@@ -75,7 +74,6 @@ public:
 
     std::shared_ptr<FDNLF1WrapperUEPP> getFDNLF1();
     std::shared_ptr<NLF1WrapperUEPP> getNLF1();
-
 
     UnconstrainedEndPoseProblem_ptr problem_;
     int n_;
@@ -104,10 +102,6 @@ protected:
     UnconstrainedEndPoseProblemWrapper parent_;
 };
 
-
-
-
-
 class UnconstrainedTimeIndexedProblemWrapper
 {
 public:
@@ -122,7 +116,6 @@ public:
 
     std::shared_ptr<FDNLF1WrapperUTIP> getFDNLF1();
     std::shared_ptr<NLF1WrapperUTIP> getNLF1();
-
 
     UnconstrainedTimeIndexedProblem_ptr problem_;
     int n_;
@@ -150,7 +143,6 @@ public:
 protected:
     UnconstrainedTimeIndexedProblemWrapper parent_;
 };
-
 }
 
-#endif // OPTPP_CORE_H
+#endif  // OPTPP_CORE_H

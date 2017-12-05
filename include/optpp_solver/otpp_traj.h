@@ -39,14 +39,14 @@
 #ifndef OPTPPTRAJ_H
 #define OPTPPTRAJ_H
 
-#include <optpp_solver/optpp_core.h>
 #include <exotica/Exotica.h>
 #include <exotica/Problems/UnconstrainedTimeIndexedProblem.h>
-#include <optpp_solver/OptppTrajLBFGSInitializer.h>
 #include <optpp_solver/OptppTrajCGInitializer.h>
 #include <optpp_solver/OptppTrajFDNewtonInitializer.h>
 #include <optpp_solver/OptppTrajGSSInitializer.h>
+#include <optpp_solver/OptppTrajLBFGSInitializer.h>
 #include <optpp_solver/OptppTrajQNewtonInitializer.h>
+#include <optpp_solver/optpp_core.h>
 
 namespace exotica
 {
@@ -56,15 +56,12 @@ class OptppTrajLBFGS : public MotionSolver, public Instantiable<OptppTrajLBFGSIn
 public:
     OptppTrajLBFGS() {}
     virtual ~OptppTrajLBFGS() {}
-
-    virtual void Instantiate(OptppTrajLBFGSInitializer& init) { parameters_ = init;}
-
+    virtual void Instantiate(OptppTrajLBFGSInitializer& init) { parameters_ = init; }
     virtual void Solve(Eigen::MatrixXd& solution);
 
     virtual void specifyProblem(PlanningProblem_ptr pointer);
 
-    UnconstrainedTimeIndexedProblem_ptr& getProblem() { return prob_;}
-
+    UnconstrainedTimeIndexedProblem_ptr& getProblem() { return prob_; }
     double planning_time_;
 
 private:
@@ -74,22 +71,18 @@ private:
 };
 typedef std::shared_ptr<exotica::OptppTrajLBFGS> OptppTrajLBFGS_ptr;
 
-
 /// \brief Conjugate Gradient IK solver
 class OptppTrajCG : public MotionSolver, public Instantiable<OptppTrajCGInitializer>
 {
 public:
     OptppTrajCG() {}
     virtual ~OptppTrajCG() {}
-
-    virtual void Instantiate(OptppTrajCGInitializer& init) { parameters_ = init;}
-
+    virtual void Instantiate(OptppTrajCGInitializer& init) { parameters_ = init; }
     virtual void Solve(Eigen::MatrixXd& solution);
 
     virtual void specifyProblem(PlanningProblem_ptr pointer);
 
-    UnconstrainedTimeIndexedProblem_ptr& getProblem() { return prob_;}
-
+    UnconstrainedTimeIndexedProblem_ptr& getProblem() { return prob_; }
     double planning_time_;
 
 private:
@@ -99,22 +92,18 @@ private:
 };
 typedef std::shared_ptr<exotica::OptppTrajCG> OptppTrajCG_ptr;
 
-
 /// \brief Newton method IK solver
 class OptppTrajQNewton : public MotionSolver, public Instantiable<OptppTrajQNewtonInitializer>
 {
 public:
     OptppTrajQNewton() {}
     virtual ~OptppTrajQNewton() {}
-
-    virtual void Instantiate(OptppTrajQNewtonInitializer& init) { parameters_ = init;}
-
+    virtual void Instantiate(OptppTrajQNewtonInitializer& init) { parameters_ = init; }
     virtual void Solve(Eigen::MatrixXd& solution);
 
     virtual void specifyProblem(PlanningProblem_ptr pointer);
 
-    UnconstrainedTimeIndexedProblem_ptr& getProblem() { return prob_;}
-
+    UnconstrainedTimeIndexedProblem_ptr& getProblem() { return prob_; }
     double planning_time_;
 
 private:
@@ -130,15 +119,12 @@ class OptppTrajFDNewton : public MotionSolver, public Instantiable<OptppTrajFDNe
 public:
     OptppTrajFDNewton() {}
     virtual ~OptppTrajFDNewton() {}
-
-    virtual void Instantiate(OptppTrajFDNewtonInitializer& init) { parameters_ = init;}
-
+    virtual void Instantiate(OptppTrajFDNewtonInitializer& init) { parameters_ = init; }
     virtual void Solve(Eigen::MatrixXd& solution);
 
     virtual void specifyProblem(PlanningProblem_ptr pointer);
 
-    UnconstrainedTimeIndexedProblem_ptr& getProblem() { return prob_;}
-
+    UnconstrainedTimeIndexedProblem_ptr& getProblem() { return prob_; }
     double planning_time_;
 
 private:
@@ -154,15 +140,12 @@ class OptppTrajGSS : public MotionSolver, public Instantiable<OptppTrajGSSInitia
 public:
     OptppTrajGSS() {}
     virtual ~OptppTrajGSS() {}
-
-    virtual void Instantiate(OptppTrajGSSInitializer& init) { parameters_ = init;}
-
+    virtual void Instantiate(OptppTrajGSSInitializer& init) { parameters_ = init; }
     virtual void Solve(Eigen::MatrixXd& solution);
 
     virtual void specifyProblem(PlanningProblem_ptr pointer);
 
-    UnconstrainedTimeIndexedProblem_ptr& getProblem() { return prob_;}
-
+    UnconstrainedTimeIndexedProblem_ptr& getProblem() { return prob_; }
     double planning_time_;
 
 private:
@@ -171,6 +154,5 @@ private:
     UnconstrainedTimeIndexedProblem_ptr prob_;  // Shared pointer to the planning problem.
 };
 typedef std::shared_ptr<exotica::OptppTrajGSS> OptppTrajGSS_ptr;
-
 }
 #endif

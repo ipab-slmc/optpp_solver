@@ -41,11 +41,9 @@
 
 namespace exotica
 {
-
-UnconstrainedEndPoseProblemWrapper::UnconstrainedEndPoseProblemWrapper(UnconstrainedEndPoseProblem_ptr problem) :
-    problem_(problem), n_(problem_->N)
+UnconstrainedEndPoseProblemWrapper::UnconstrainedEndPoseProblemWrapper(UnconstrainedEndPoseProblem_ptr problem) : problem_(problem), n_(problem_->N)
 {
-    if(problem_->getNominalPose().rows()>0) throw_pretty("OPT++ solvers don't support null-space optimization! "<<problem_->getNominalPose().rows());
+    if (problem_->getNominalPose().rows() > 0) throw_pretty("OPT++ solvers don't support null-space optimization! " << problem_->getNominalPose().rows());
 }
 
 void UnconstrainedEndPoseProblemWrapper::setSolver(std::shared_ptr<OPTPP::OptimizeClass> solver)
@@ -66,9 +64,9 @@ void UnconstrainedEndPoseProblemWrapper::updateCallbackFD(int n, const ColumnVec
 
 void UnconstrainedEndPoseProblemWrapper::update(int mode, int n, const ColumnVector& x_opp, double& fx, ColumnVector& gx, int& result)
 {
-    if(n!=n_) throw_pretty("Invalid OPT++ state size, expecting "<<n_<<" got "<<n);
+    if (n != n_) throw_pretty("Invalid OPT++ state size, expecting " << n_ << " got " << n);
     Eigen::VectorXd x(n);
-    for(int i=0; i<n; i++) x(i) = x_opp(i+1);
+    for (int i = 0; i < n; i++) x(i) = x_opp(i + 1);
     problem_->Update(x);
 
     if (mode & NLPFunction)
@@ -80,7 +78,7 @@ void UnconstrainedEndPoseProblemWrapper::update(int mode, int n, const ColumnVec
     if (mode & NLPGradient)
     {
         Eigen::VectorXd J = problem_->getScalarJacobian();
-        for(int i=0; i<n; i++) gx(i+1) = J(i);
+        for (int i = 0; i < n; i++) gx(i + 1) = J(i);
         result = NLPGradient;
     }
 
@@ -94,10 +92,10 @@ void UnconstrainedEndPoseProblemWrapper::update(int mode, int n, const ColumnVec
 
 void UnconstrainedEndPoseProblemWrapper::init(int n, ColumnVector& x)
 {
-    if(n!=n_) throw_pretty("Invalid OPT++ state size, expecting "<<n_<<" got "<<n);
+    if (n != n_) throw_pretty("Invalid OPT++ state size, expecting " << n_ << " got " << n);
     Eigen::VectorXd x0 = problem_->applyStartState();
     x.ReSize(n);
-    for(int i=0; i<n; i++) x(i+1) = x0(i);
+    for (int i = 0; i < n; i++) x(i + 1) = x0(i);
     hasBeenInitialized = false;
 }
 
@@ -112,7 +110,7 @@ std::shared_ptr<NLF1WrapperUEPP> UnconstrainedEndPoseProblemWrapper::getNLF1()
 }
 
 NLF1WrapperUEPP::NLF1WrapperUEPP(const UnconstrainedEndPoseProblemWrapper& parent) : parent_(parent),
-    NLF1(parent.n_, UnconstrainedEndPoseProblemWrapper::updateCallback, nullptr, (void*)nullptr)
+                                                                                     NLF1(parent.n_, UnconstrainedEndPoseProblemWrapper::updateCallback, nullptr, (void*)nullptr)
 {
     vptr = reinterpret_cast<UnconstrainedEndPoseProblemWrapper*>(&parent_);
 }
@@ -126,12 +124,12 @@ void NLF1WrapperUEPP::initFcn()
     }
     else
     {
-      parent_.init(dim, mem_xc);
+        parent_.init(dim, mem_xc);
     }
 }
 
 FDNLF1WrapperUEPP::FDNLF1WrapperUEPP(const UnconstrainedEndPoseProblemWrapper& parent) : parent_(parent),
-    FDNLF1(parent.n_, UnconstrainedEndPoseProblemWrapper::updateCallbackFD, nullptr, (void*)nullptr)
+                                                                                         FDNLF1(parent.n_, UnconstrainedEndPoseProblemWrapper::updateCallbackFD, nullptr, (void*)nullptr)
 {
     vptr = reinterpret_cast<UnconstrainedEndPoseProblemWrapper*>(&parent_);
 }
@@ -145,22 +143,12 @@ void FDNLF1WrapperUEPP::initFcn()
     }
     else
     {
-      parent_.init(dim, mem_xc);
+        parent_.init(dim, mem_xc);
     }
 }
 
-
-
-
-
-
-
-
-
-UnconstrainedTimeIndexedProblemWrapper::UnconstrainedTimeIndexedProblemWrapper(UnconstrainedTimeIndexedProblem_ptr problem) :
-    problem_(problem), n_(problem_->N*(problem_->getT()-1))
+UnconstrainedTimeIndexedProblemWrapper::UnconstrainedTimeIndexedProblemWrapper(UnconstrainedTimeIndexedProblem_ptr problem) : problem_(problem), n_(problem_->N * (problem_->getT() - 1))
 {
-
 }
 
 void UnconstrainedTimeIndexedProblemWrapper::setSolver(std::shared_ptr<OPTPP::OptimizeClass> solver)
@@ -181,7 +169,7 @@ void UnconstrainedTimeIndexedProblemWrapper::updateCallbackFD(int n, const Colum
 
 void UnconstrainedTimeIndexedProblemWrapper::update(int mode, int n, const ColumnVector& x_opp, double& fx, ColumnVector& gx, int& result)
 {
-    if(n!=n_) throw_pretty("Invalid OPT++ state size, expecting "<<n_<<" got "<<n);
+    if (n != n_) throw_pretty("Invalid OPT++ state size, expecting " << n_ << " got " << n);
 
     Eigen::VectorXd x(problem_->N);
     Eigen::VectorXd x_prev = problem_->getInitialTrajectory()[0];
@@ -191,9 +179,9 @@ void UnconstrainedTimeIndexedProblemWrapper::update(int mode, int n, const Colum
     problem_->Update(x_prev, 0);
     fx = problem_->getScalarTaskCost(0);
 
-    for(int t=1; t<problem_->getT(); t++)
+    for (int t = 1; t < problem_->getT(); t++)
     {
-        for(int i=0; i<problem_->N; i++) x(i) = x_opp((t-1)*problem_->N+i+1);
+        for (int i = 0; i < problem_->N; i++) x(i) = x_opp((t - 1) * problem_->N + i + 1);
 
         problem_->Update(x, t);
         dx = x - x_prev;
@@ -208,10 +196,10 @@ void UnconstrainedTimeIndexedProblemWrapper::update(int mode, int n, const Colum
         {
             Eigen::VectorXd J_control = problem_->getScalarTransitionJacobian(t);
             Eigen::VectorXd J = problem_->getScalarTaskJacobian(t) + J_control;
-            for(int i=0; i<problem_->N; i++) gx((t-1)*problem_->N+i+1) = J(i);
-            if(t>1)
+            for (int i = 0; i < problem_->N; i++) gx((t - 1) * problem_->N + i + 1) = J(i);
+            if (t > 1)
             {
-                for(int i=0; i<problem_->N; i++) gx((t-2)*problem_->N+i+1) += -J_control(i);
+                for (int i = 0; i < problem_->N; i++) gx((t - 2) * problem_->N + i + 1) += -J_control(i);
             }
             result = NLPGradient;
         }
@@ -228,12 +216,12 @@ void UnconstrainedTimeIndexedProblemWrapper::update(int mode, int n, const Colum
 
 void UnconstrainedTimeIndexedProblemWrapper::init(int n, ColumnVector& x)
 {
-    if(n!=n_) throw_pretty("Invalid OPT++ state size, expecting "<<n_<<" got "<<n);
+    if (n != n_) throw_pretty("Invalid OPT++ state size, expecting " << n_ << " got " << n);
     const std::vector<Eigen::VectorXd>& init = problem_->getInitialTrajectory();
     x.ReSize(n);
-    for(int t=1; t<problem_->getT(); t++)
-        for(int i=0; i<problem_->N; i++)
-            x((t-1)*problem_->N+i+1) = init[t](i);
+    for (int t = 1; t < problem_->getT(); t++)
+        for (int i = 0; i < problem_->N; i++)
+            x((t - 1) * problem_->N + i + 1) = init[t](i);
     hasBeenInitialized = false;
 }
 
@@ -248,7 +236,7 @@ std::shared_ptr<NLF1WrapperUTIP> UnconstrainedTimeIndexedProblemWrapper::getNLF1
 }
 
 NLF1WrapperUTIP::NLF1WrapperUTIP(const UnconstrainedTimeIndexedProblemWrapper& parent) : parent_(parent),
-    NLF1(parent.n_, UnconstrainedTimeIndexedProblemWrapper::updateCallback, nullptr, (void*)nullptr)
+                                                                                         NLF1(parent.n_, UnconstrainedTimeIndexedProblemWrapper::updateCallback, nullptr, (void*)nullptr)
 {
     vptr = reinterpret_cast<UnconstrainedTimeIndexedProblemWrapper*>(&parent_);
 }
@@ -262,12 +250,12 @@ void NLF1WrapperUTIP::initFcn()
     }
     else
     {
-      parent_.init(dim, mem_xc);
+        parent_.init(dim, mem_xc);
     }
 }
 
 FDNLF1WrapperUTIP::FDNLF1WrapperUTIP(const UnconstrainedTimeIndexedProblemWrapper& parent) : parent_(parent),
-    FDNLF1(parent.n_, UnconstrainedTimeIndexedProblemWrapper::updateCallbackFD, nullptr, (void*)nullptr)
+                                                                                             FDNLF1(parent.n_, UnconstrainedTimeIndexedProblemWrapper::updateCallbackFD, nullptr, (void*)nullptr)
 {
     vptr = reinterpret_cast<UnconstrainedTimeIndexedProblemWrapper*>(&parent_);
 }
@@ -281,8 +269,7 @@ void FDNLF1WrapperUTIP::initFcn()
     }
     else
     {
-      parent_.init(dim, mem_xc);
+        parent_.init(dim, mem_xc);
     }
 }
-
 }
