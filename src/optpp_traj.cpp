@@ -36,12 +36,12 @@
  *
  */
 
-#include <optpp_solver/otpp_traj.h>
-#include <optpp_catkin/OptLBFGS.h>
 #include <optpp_catkin/OptCG.h>
-#include <optpp_catkin/OptQNewton.h>
 #include <optpp_catkin/OptFDNewton.h>
 #include <optpp_catkin/OptGSS.h>
+#include <optpp_catkin/OptLBFGS.h>
+#include <optpp_catkin/OptQNewton.h>
+#include <optpp_solver/otpp_traj.h>
 
 REGISTER_MOTIONSOLVER_TYPE("OptppTrajLBFGS", exotica::OptppTrajLBFGS)
 REGISTER_MOTIONSOLVER_TYPE("OptppTrajCG", exotica::OptppTrajCG)
@@ -51,7 +51,6 @@ REGISTER_MOTIONSOLVER_TYPE("OptppTrajGSS", exotica::OptppTrajGSS)
 
 namespace exotica
 {
-
 void OptppTrajLBFGS::specifyProblem(PlanningProblem_ptr pointer)
 {
     if (pointer->type() != "exotica::UnconstrainedTimeIndexedProblem")
@@ -78,7 +77,7 @@ void OptppTrajLBFGS::Solve(Eigen::MatrixXd& solution)
     {
         std::shared_ptr<NLP1> nlf;
         std::shared_ptr<OPTPP::OptLBFGS> solver(new OPTPP::OptLBFGS());
-        if(parameters_.UseFiniteDifferences)
+        if (parameters_.UseFiniteDifferences)
         {
             auto nlf_local = UnconstrainedTimeIndexedProblemWrapper(prob_).getFDNLF1();
             nlf = std::static_pointer_cast<NLP1>(nlf_local);
@@ -99,9 +98,9 @@ void OptppTrajLBFGS::Solve(Eigen::MatrixXd& solution)
         solver->setMaxIter(parameters_.MaxIterations);
         solver->optimize();
         ColumnVector sol = nlf->getXc();
-        for(int t=1; t<prob_->getT(); t++)
-            for(int i=0; i<prob_->N; i++)
-                solution(t,i) = sol((t-1)*prob_->N+i+1);
+        for (int t = 1; t < prob_->getT(); t++)
+            for (int i = 0; i < prob_->N; i++)
+                solution(t, i) = sol((t - 1) * prob_->N + i + 1);
         iter = solver->getIter();
         feval = nlf->getFevals();
         geval = nlf->getGevals();
@@ -111,18 +110,16 @@ void OptppTrajLBFGS::Solve(Eigen::MatrixXd& solution)
     CatchAll
     {
         Tracer::last->PrintTrace();
-        throw_pretty("OPT++ exception:"<<BaseException::what());
+        throw_pretty("OPT++ exception:" << BaseException::what());
     }
 
     planning_time_ = timer.getDuration();
 
-    if(debug_)
+    if (debug_)
     {
-        HIGHLIGHT_NAMED(object_name_+" OptppTrajLBFGS", "Time: "<<planning_time_<<"s, Status: "<<ret<<", Iterations: "<<iter<<", Feval: "<<feval<<", Geval: "<<geval);
+        HIGHLIGHT_NAMED(object_name_ + " OptppTrajLBFGS", "Time: " << planning_time_ << "s, Status: " << ret << ", Iterations: " << iter << ", Feval: " << feval << ", Geval: " << geval);
     }
 }
-
-
 
 void OptppTrajCG::specifyProblem(PlanningProblem_ptr pointer)
 {
@@ -150,7 +147,7 @@ void OptppTrajCG::Solve(Eigen::MatrixXd& solution)
     {
         std::shared_ptr<NLP1> nlf;
         std::shared_ptr<OPTPP::OptCG> solver(new OPTPP::OptCG());
-        if(parameters_.UseFiniteDifferences)
+        if (parameters_.UseFiniteDifferences)
         {
             auto nlf_local = UnconstrainedTimeIndexedProblemWrapper(prob_).getFDNLF1();
             nlf = std::static_pointer_cast<NLP1>(nlf_local);
@@ -170,9 +167,9 @@ void OptppTrajCG::Solve(Eigen::MatrixXd& solution)
         solver->setMaxIter(parameters_.MaxIterations);
         solver->optimize();
         ColumnVector sol = nlf->getXc();
-        for(int t=1; t<prob_->getT(); t++)
-            for(int i=0; i<prob_->N; i++)
-                solution(t,i) = sol((t-1)*prob_->N+i+1);
+        for (int t = 1; t < prob_->getT(); t++)
+            for (int i = 0; i < prob_->N; i++)
+                solution(t, i) = sol((t - 1) * prob_->N + i + 1);
         iter = solver->getIter();
         feval = nlf->getFevals();
         geval = nlf->getGevals();
@@ -182,19 +179,16 @@ void OptppTrajCG::Solve(Eigen::MatrixXd& solution)
     CatchAll
     {
         Tracer::last->PrintTrace();
-        throw_pretty("OPT++ exception:"<<BaseException::what());
+        throw_pretty("OPT++ exception:" << BaseException::what());
     }
 
     planning_time_ = timer.getDuration();
 
-    if(debug_)
+    if (debug_)
     {
-        HIGHLIGHT_NAMED(object_name_+" OptppTrajCG", "Time: "<<planning_time_<<" ,Status: "<<ret<<" , Iterations: "<<iter<<" ,Feval: "<<feval<<" , Geval: "<<geval);
+        HIGHLIGHT_NAMED(object_name_ + " OptppTrajCG", "Time: " << planning_time_ << " ,Status: " << ret << " , Iterations: " << iter << " ,Feval: " << feval << " , Geval: " << geval);
     }
 }
-
-
-
 
 void OptppTrajQNewton::specifyProblem(PlanningProblem_ptr pointer)
 {
@@ -222,7 +216,7 @@ void OptppTrajQNewton::Solve(Eigen::MatrixXd& solution)
     {
         std::shared_ptr<NLP1> nlf;
         std::shared_ptr<OPTPP::OptQNewton> solver(new OPTPP::OptQNewton());
-        if(parameters_.UseFiniteDifferences)
+        if (parameters_.UseFiniteDifferences)
         {
             auto nlf_local = UnconstrainedTimeIndexedProblemWrapper(prob_).getFDNLF1();
             nlf = std::static_pointer_cast<NLP1>(nlf_local);
@@ -242,9 +236,9 @@ void OptppTrajQNewton::Solve(Eigen::MatrixXd& solution)
         solver->setMaxIter(parameters_.MaxIterations);
         solver->optimize();
         ColumnVector sol = nlf->getXc();
-        for(int t=1; t<prob_->getT(); t++)
-            for(int i=0; i<prob_->N; i++)
-                solution(t,i) = sol((t-1)*prob_->N+i+1);
+        for (int t = 1; t < prob_->getT(); t++)
+            for (int i = 0; i < prob_->N; i++)
+                solution(t, i) = sol((t - 1) * prob_->N + i + 1);
         iter = solver->getIter();
         feval = nlf->getFevals();
         geval = nlf->getGevals();
@@ -254,20 +248,16 @@ void OptppTrajQNewton::Solve(Eigen::MatrixXd& solution)
     CatchAll
     {
         Tracer::last->PrintTrace();
-        throw_pretty("OPT++ exception:"<<BaseException::what());
+        throw_pretty("OPT++ exception:" << BaseException::what());
     }
 
     planning_time_ = timer.getDuration();
 
-    if(debug_)
+    if (debug_)
     {
-        HIGHLIGHT_NAMED(object_name_+" OptppTrajQNewton", "Time: "<<planning_time_<<" ,Status: "<<ret<<" , Iterations: "<<iter<<" ,Feval: "<<feval<<" , Geval: "<<geval);
+        HIGHLIGHT_NAMED(object_name_ + " OptppTrajQNewton", "Time: " << planning_time_ << " ,Status: " << ret << " , Iterations: " << iter << " ,Feval: " << feval << " , Geval: " << geval);
     }
 }
-
-
-
-
 
 void OptppTrajFDNewton::specifyProblem(PlanningProblem_ptr pointer)
 {
@@ -295,7 +285,7 @@ void OptppTrajFDNewton::Solve(Eigen::MatrixXd& solution)
     {
         std::shared_ptr<NLP1> nlf;
         std::shared_ptr<OPTPP::OptFDNewton> solver(new OPTPP::OptFDNewton());
-        if(parameters_.UseFiniteDifferences)
+        if (parameters_.UseFiniteDifferences)
         {
             auto nlf_local = UnconstrainedTimeIndexedProblemWrapper(prob_).getFDNLF1();
             nlf = std::static_pointer_cast<NLP1>(nlf_local);
@@ -315,9 +305,9 @@ void OptppTrajFDNewton::Solve(Eigen::MatrixXd& solution)
         solver->setMaxIter(parameters_.MaxIterations);
         solver->optimize();
         ColumnVector sol = nlf->getXc();
-        for(int t=1; t<prob_->getT(); t++)
-            for(int i=0; i<prob_->N; i++)
-                solution(t,i) = sol((t-1)*prob_->N+i+1);
+        for (int t = 1; t < prob_->getT(); t++)
+            for (int i = 0; i < prob_->N; i++)
+                solution(t, i) = sol((t - 1) * prob_->N + i + 1);
         iter = solver->getIter();
         feval = nlf->getFevals();
         geval = nlf->getGevals();
@@ -327,22 +317,16 @@ void OptppTrajFDNewton::Solve(Eigen::MatrixXd& solution)
     CatchAll
     {
         Tracer::last->PrintTrace();
-        throw_pretty("OPT++ exception:"<<BaseException::what());
+        throw_pretty("OPT++ exception:" << BaseException::what());
     }
 
     planning_time_ = timer.getDuration();
 
-    if(debug_)
+    if (debug_)
     {
-        HIGHLIGHT_NAMED(object_name_+" OptppTrajFDNewton", "Time: "<<planning_time_<<" ,Status: "<<ret<<" , Iterations: "<<iter<<" ,Feval: "<<feval<<" , Geval: "<<geval);
+        HIGHLIGHT_NAMED(object_name_ + " OptppTrajFDNewton", "Time: " << planning_time_ << " ,Status: " << ret << " , Iterations: " << iter << " ,Feval: " << feval << " , Geval: " << geval);
     }
 }
-
-
-
-
-
-
 
 void OptppTrajGSS::specifyProblem(PlanningProblem_ptr pointer)
 {
@@ -381,9 +365,9 @@ void OptppTrajGSS::Solve(Eigen::MatrixXd& solution)
         solver->setMaxIter(parameters_.MaxIterations);
         solver->optimize();
         ColumnVector sol = nlf->getXc();
-        for(int t=1; t<prob_->getT(); t++)
-            for(int i=0; i<prob_->N; i++)
-                solution(t,i) = sol((t-1)*prob_->N+i+1);
+        for (int t = 1; t < prob_->getT(); t++)
+            for (int i = 0; i < prob_->N; i++)
+                solution(t, i) = sol((t - 1) * prob_->N + i + 1);
         iter = solver->getIter();
         feval = nlf->getFevals();
         ret = solver->getReturnCode();
@@ -392,15 +376,14 @@ void OptppTrajGSS::Solve(Eigen::MatrixXd& solution)
     CatchAll
     {
         Tracer::last->PrintTrace();
-        throw_pretty("OPT++ exception:"<<BaseException::what());
+        throw_pretty("OPT++ exception:" << BaseException::what());
     }
 
     planning_time_ = timer.getDuration();
 
-    if(debug_)
+    if (debug_)
     {
-        HIGHLIGHT_NAMED(object_name_+" OptppTrajGSS", "Time: "<<planning_time_<<" ,Status: "<<ret<<" , Iterations: "<<iter<<" ,Feval: "<<feval);
+        HIGHLIGHT_NAMED(object_name_ + " OptppTrajGSS", "Time: " << planning_time_ << " ,Status: " << ret << " , Iterations: " << iter << " ,Feval: " << feval);
     }
 }
-
 }

@@ -39,14 +39,14 @@
 #ifndef OPTPPIK_H
 #define OPTPPIK_H
 
-#include <optpp_solver/optpp_core.h>
 #include <exotica/Exotica.h>
 #include <exotica/Problems/UnconstrainedEndPoseProblem.h>
-#include <optpp_solver/OptppIKLBFGSInitializer.h>
 #include <optpp_solver/OptppIKCGInitializer.h>
 #include <optpp_solver/OptppIKFDNewtonInitializer.h>
 #include <optpp_solver/OptppIKGSSInitializer.h>
+#include <optpp_solver/OptppIKLBFGSInitializer.h>
 #include <optpp_solver/OptppIKQNewtonInitializer.h>
+#include <optpp_solver/optpp_core.h>
 
 namespace exotica
 {
@@ -56,15 +56,12 @@ class OptppIKLBFGS : public MotionSolver, public Instantiable<OptppIKLBFGSInitia
 public:
     OptppIKLBFGS() {}
     virtual ~OptppIKLBFGS() {}
-
-    virtual void Instantiate(OptppIKLBFGSInitializer& init) { parameters_ = init;}
-
+    virtual void Instantiate(OptppIKLBFGSInitializer& init) { parameters_ = init; }
     virtual void Solve(Eigen::MatrixXd& solution);
 
     virtual void specifyProblem(PlanningProblem_ptr pointer);
 
-    UnconstrainedEndPoseProblem_ptr& getProblem() { return prob_;}
-
+    UnconstrainedEndPoseProblem_ptr& getProblem() { return prob_; }
     double planning_time_;
 
 private:
@@ -74,22 +71,18 @@ private:
 };
 typedef std::shared_ptr<exotica::OptppIKLBFGS> OptppIKLBFGS_ptr;
 
-
 /// \brief Conjugate Gradient IK solver
 class OptppIKCG : public MotionSolver, public Instantiable<OptppIKCGInitializer>
 {
 public:
     OptppIKCG() {}
     virtual ~OptppIKCG() {}
-
-    virtual void Instantiate(OptppIKCGInitializer& init) { parameters_ = init;}
-
+    virtual void Instantiate(OptppIKCGInitializer& init) { parameters_ = init; }
     virtual void Solve(Eigen::MatrixXd& solution);
 
     virtual void specifyProblem(PlanningProblem_ptr pointer);
 
-    UnconstrainedEndPoseProblem_ptr& getProblem() { return prob_;}
-
+    UnconstrainedEndPoseProblem_ptr& getProblem() { return prob_; }
     double planning_time_;
 
 private:
@@ -99,22 +92,18 @@ private:
 };
 typedef std::shared_ptr<exotica::OptppIKCG> OptppIKCG_ptr;
 
-
 /// \brief Newton method IK solver
 class OptppIKQNewton : public MotionSolver, public Instantiable<OptppIKQNewtonInitializer>
 {
 public:
     OptppIKQNewton() {}
     virtual ~OptppIKQNewton() {}
-
-    virtual void Instantiate(OptppIKQNewtonInitializer& init) { parameters_ = init;}
-
+    virtual void Instantiate(OptppIKQNewtonInitializer& init) { parameters_ = init; }
     virtual void Solve(Eigen::MatrixXd& solution);
 
     virtual void specifyProblem(PlanningProblem_ptr pointer);
 
-    UnconstrainedEndPoseProblem_ptr& getProblem() { return prob_;}
-
+    UnconstrainedEndPoseProblem_ptr& getProblem() { return prob_; }
     double planning_time_;
 
 private:
@@ -130,15 +119,12 @@ class OptppIKFDNewton : public MotionSolver, public Instantiable<OptppIKFDNewton
 public:
     OptppIKFDNewton() {}
     virtual ~OptppIKFDNewton() {}
-
-    virtual void Instantiate(OptppIKFDNewtonInitializer& init) { parameters_ = init;}
-
+    virtual void Instantiate(OptppIKFDNewtonInitializer& init) { parameters_ = init; }
     virtual void Solve(Eigen::MatrixXd& solution);
 
     virtual void specifyProblem(PlanningProblem_ptr pointer);
 
-    UnconstrainedEndPoseProblem_ptr& getProblem() { return prob_;}
-
+    UnconstrainedEndPoseProblem_ptr& getProblem() { return prob_; }
     double planning_time_;
 
 private:
@@ -154,15 +140,12 @@ class OptppIKGSS : public MotionSolver, public Instantiable<OptppIKGSSInitialize
 public:
     OptppIKGSS() {}
     virtual ~OptppIKGSS() {}
-
-    virtual void Instantiate(OptppIKGSSInitializer& init) { parameters_ = init;}
-
+    virtual void Instantiate(OptppIKGSSInitializer& init) { parameters_ = init; }
     virtual void Solve(Eigen::MatrixXd& solution);
 
     virtual void specifyProblem(PlanningProblem_ptr pointer);
 
-    UnconstrainedEndPoseProblem_ptr& getProblem() { return prob_;}
-
+    UnconstrainedEndPoseProblem_ptr& getProblem() { return prob_; }
     double planning_time_;
 
 private:
@@ -171,6 +154,5 @@ private:
     UnconstrainedEndPoseProblem_ptr prob_;  // Shared pointer to the planning problem.
 };
 typedef std::shared_ptr<exotica::OptppIKGSS> OptppIKGSS_ptr;
-
 }
 #endif
