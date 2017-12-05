@@ -158,7 +158,7 @@ void FDNLF1WrapperUEPP::initFcn()
 
 
 UnconstrainedTimeIndexedProblemWrapper::UnconstrainedTimeIndexedProblemWrapper(UnconstrainedTimeIndexedProblem_ptr problem) :
-    problem_(problem), n_(problem_->N*(problem_->T-1))
+    problem_(problem), n_(problem_->N*(problem_->getT()-1))
 {
 
 }
@@ -185,15 +185,13 @@ void UnconstrainedTimeIndexedProblemWrapper::update(int mode, int n, const Colum
 
     Eigen::VectorXd x(problem_->N);
     Eigen::VectorXd x_prev = problem_->getInitialTrajectory()[0];
-    double T = (double)problem_->T;
-    double ct = 1.0/problem_->tau/T;
 
     Eigen::VectorXd dx;
 
     problem_->Update(x_prev, 0);
     fx = problem_->getScalarTaskCost(0);
 
-    for(int t=1; t<problem_->T; t++)
+    for(int t=1; t<problem_->getT(); t++)
     {
         for(int i=0; i<problem_->N; i++) x(i) = x_opp((t-1)*problem_->N+i+1);
 
@@ -233,7 +231,7 @@ void UnconstrainedTimeIndexedProblemWrapper::init(int n, ColumnVector& x)
     if(n!=n_) throw_pretty("Invalid OPT++ state size, expecting "<<n_<<" got "<<n);
     const std::vector<Eigen::VectorXd>& init = problem_->getInitialTrajectory();
     x.ReSize(n);
-    for(int t=1; t<problem_->T; t++)
+    for(int t=1; t<problem_->getT(); t++)
         for(int i=0; i<problem_->N; i++)
             x((t-1)*problem_->N+i+1) = init[t](i);
     hasBeenInitialized = false;

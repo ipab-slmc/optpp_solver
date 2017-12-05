@@ -70,7 +70,7 @@ void OptppTrajLBFGS::Solve(Eigen::MatrixXd& solution)
     prob_->preupdate();
     prob_->resetCostEvolution(parameters_.MaxIterations);
 
-    solution.resize(prob_->T, prob_->N);
+    solution.resize(prob_->getT(), prob_->N);
     solution.row(0) = prob_->getInitialTrajectory()[0];
     int iter, feval, geval, ret;
 
@@ -99,7 +99,7 @@ void OptppTrajLBFGS::Solve(Eigen::MatrixXd& solution)
         solver->setMaxIter(parameters_.MaxIterations);
         solver->optimize();
         ColumnVector sol = nlf->getXc();
-        for(int t=1; t<prob_->T; t++)
+        for(int t=1; t<prob_->getT(); t++)
             for(int i=0; i<prob_->N; i++)
                 solution(t,i) = sol((t-1)*prob_->N+i+1);
         iter = solver->getIter();
@@ -142,7 +142,7 @@ void OptppTrajCG::Solve(Eigen::MatrixXd& solution)
     prob_->preupdate();
     prob_->resetCostEvolution(parameters_.MaxIterations);
 
-    solution.resize(prob_->T, prob_->N);
+    solution.resize(prob_->getT(), prob_->N);
     solution.row(0) = prob_->getInitialTrajectory()[0];
     int iter, feval, geval, ret;
 
@@ -170,7 +170,7 @@ void OptppTrajCG::Solve(Eigen::MatrixXd& solution)
         solver->setMaxIter(parameters_.MaxIterations);
         solver->optimize();
         ColumnVector sol = nlf->getXc();
-        for(int t=1; t<prob_->T; t++)
+        for(int t=1; t<prob_->getT(); t++)
             for(int i=0; i<prob_->N; i++)
                 solution(t,i) = sol((t-1)*prob_->N+i+1);
         iter = solver->getIter();
@@ -214,7 +214,7 @@ void OptppTrajQNewton::Solve(Eigen::MatrixXd& solution)
     prob_->preupdate();
     prob_->resetCostEvolution(parameters_.MaxIterations + 1);
 
-    solution.resize(prob_->T, prob_->N);
+    solution.resize(prob_->getT(), prob_->N);
     solution.row(0) = prob_->getInitialTrajectory()[0];
     int iter, feval, geval, ret;
 
@@ -242,7 +242,7 @@ void OptppTrajQNewton::Solve(Eigen::MatrixXd& solution)
         solver->setMaxIter(parameters_.MaxIterations);
         solver->optimize();
         ColumnVector sol = nlf->getXc();
-        for(int t=1; t<prob_->T; t++)
+        for(int t=1; t<prob_->getT(); t++)
             for(int i=0; i<prob_->N; i++)
                 solution(t,i) = sol((t-1)*prob_->N+i+1);
         iter = solver->getIter();
@@ -287,7 +287,7 @@ void OptppTrajFDNewton::Solve(Eigen::MatrixXd& solution)
     prob_->preupdate();
     prob_->resetCostEvolution(parameters_.MaxIterations);
 
-    solution.resize(prob_->T, prob_->N);
+    solution.resize(prob_->getT(), prob_->N);
     solution.row(0) = prob_->getInitialTrajectory()[0];
     int iter, feval, geval, ret;
 
@@ -315,7 +315,7 @@ void OptppTrajFDNewton::Solve(Eigen::MatrixXd& solution)
         solver->setMaxIter(parameters_.MaxIterations);
         solver->optimize();
         ColumnVector sol = nlf->getXc();
-        for(int t=1; t<prob_->T; t++)
+        for(int t=1; t<prob_->getT(); t++)
             for(int i=0; i<prob_->N; i++)
                 solution(t,i) = sol((t-1)*prob_->N+i+1);
         iter = solver->getIter();
@@ -362,7 +362,7 @@ void OptppTrajGSS::Solve(Eigen::MatrixXd& solution)
     prob_->preupdate();
     prob_->resetCostEvolution(parameters_.MaxIterations);
 
-    solution.resize(prob_->T, prob_->N);
+    solution.resize(prob_->getT(), prob_->N);
     solution.row(0) = prob_->getInitialTrajectory()[0];
     int iter, feval, geval, ret;
 
@@ -381,7 +381,7 @@ void OptppTrajGSS::Solve(Eigen::MatrixXd& solution)
         solver->setMaxIter(parameters_.MaxIterations);
         solver->optimize();
         ColumnVector sol = nlf->getXc();
-        for(int t=1; t<prob_->T; t++)
+        for(int t=1; t<prob_->getT(); t++)
             for(int i=0; i<prob_->N; i++)
                 solution(t,i) = sol((t-1)*prob_->N+i+1);
         iter = solver->getIter();
