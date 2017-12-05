@@ -158,7 +158,7 @@ void FDNLF1WrapperUEPP::initFcn()
 
 
 UnconstrainedTimeIndexedProblemWrapper::UnconstrainedTimeIndexedProblemWrapper(UnconstrainedTimeIndexedProblem_ptr problem) :
-    problem_(problem), n_(problem_->N*(problem_->T-1))
+    problem_(problem), n_(problem_->N*(problem_->getT()-1))
 {
 
 }
@@ -182,17 +182,16 @@ void UnconstrainedTimeIndexedProblemWrapper::updateCallbackFD(int n, const Colum
 void UnconstrainedTimeIndexedProblemWrapper::update(int mode, int n, const ColumnVector& x_opp, double& fx, ColumnVector& gx, int& result)
 {
     if(n!=n_) throw_pretty("Invalid OPT++ state size, expecting "<<n_<<" got "<<n);
-    fx = 0.0;
 
     Eigen::VectorXd x(problem_->N);
     Eigen::VectorXd x_prev = problem_->getInitialTrajectory()[0];
-    Eigen::VectorXd x_prev_prev = x_prev;
-    double T = (double)problem_->T;
-    double ct = 1.0/problem_->tau/T;
 
     Eigen::VectorXd dx;
 
-    for(int t=1; t<problem_->T; t++)
+    problem_->Update(x_prev, 0);
+    fx = problem_->getScalarTaskCost(0);
+
+    for(int t=1; t<problem_->getT(); t++)
     {
         for(int i=0; i<problem_->N; i++) x(i) = x_opp((t-1)*problem_->N+i+1);
 
@@ -201,24 +200,21 @@ void UnconstrainedTimeIndexedProblemWrapper::update(int mode, int n, const Colum
 
         if (mode & NLPFunction)
         {
-            fx += problem_->getScalarCost(t)*ct +
-                    ct*dx.transpose()*problem_->W*dx;
+            fx += problem_->getScalarTaskCost(t) + problem_->getScalarTransitionCost(t);
             result = NLPFunction;
         }
 
         if (mode & NLPGradient)
         {
-            Eigen::VectorXd J = problem_->getScalarJacobian(t)*ct
-                    + 2.0*ct*problem_->W*dx;
+            Eigen::VectorXd J_control = problem_->getScalarTransitionJacobian(t);
+            Eigen::VectorXd J = problem_->getScalarTaskJacobian(t) + J_control;
             for(int i=0; i<problem_->N; i++) gx((t-1)*problem_->N+i+1) = J(i);
             if(t>1)
             {
-                J=-2.0*ct*problem_->W*dx;
-                for(int i=0; i<problem_->N; i++) gx((t-2)*problem_->N+i+1) += J(i);
+                for(int i=0; i<problem_->N; i++) gx((t-2)*problem_->N+i+1) += -J_control(i);
             }
             result = NLPGradient;
         }
-        x_prev_prev = x_prev;
         x_prev = x;
     }
 
@@ -235,7 +231,7 @@ void UnconstrainedTimeIndexedProblemWrapper::init(int n, ColumnVector& x)
     if(n!=n_) throw_pretty("Invalid OPT++ state size, expecting "<<n_<<" got "<<n);
     const std::vector<Eigen::VectorXd>& init = problem_->getInitialTrajectory();
     x.ReSize(n);
-    for(int t=1; t<problem_->T; t++)
+    for(int t=1; t<problem_->getT(); t++)
         for(int i=0; i<problem_->N; i++)
             x((t-1)*problem_->N+i+1) = init[t](i);
     hasBeenInitialized = false;
