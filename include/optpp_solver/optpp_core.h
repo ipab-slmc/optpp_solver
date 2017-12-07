@@ -65,7 +65,6 @@ public:
     {
         ColumnVector dummy;
         init(0, dummy);
-        constrains_ = createConstraints();
     }
 
     static void updateCallback(int mode, int n, const ColumnVector& x, double& fx, ColumnVector& gx, int& result, void* data)
@@ -100,7 +99,6 @@ public:
 
     std::shared_ptr<ProblemType> problem_;
     int n_;
-    CompoundConstraint* constrains_;
 };
 
 template<typename ProblemType>
@@ -108,7 +106,7 @@ class NLF1Wrapper : public virtual NLF1
 {
 public:
     NLF1Wrapper(std::shared_ptr<ProblemWrapper<ProblemType>> parent): parent_(parent),
-        NLF1(parent.n_, ProblemWrapper<ProblemType>::updateCallback, nullptr, parent.constrains_, (void*)nullptr)
+        NLF1(parent->n_, ProblemWrapper<ProblemType>::updateCallback, nullptr, parent->createConstraints(), (void*)nullptr)
     {
         vptr = reinterpret_cast<ProblemWrapper<ProblemType>*>(parent_.get());
     }
@@ -134,7 +132,7 @@ class NLF1WrapperFD : public virtual FDNLF1
 {
 public:
     NLF1WrapperFD(std::shared_ptr<ProblemWrapper<ProblemType>> parent): parent_(parent),
-        FDNLF1(parent.n_, ProblemWrapper<ProblemType>::updateCallbackFD, nullptr, parent.constrains_, (void*)nullptr)
+        FDNLF1(parent->n_, ProblemWrapper<ProblemType>::updateCallbackFD, nullptr, parent->createConstraints(), (void*)nullptr)
     {
         vptr = reinterpret_cast<ProblemWrapper<ProblemType>*>(parent_.get());
     }
