@@ -143,12 +143,9 @@ void UnconstrainedTimeIndexedProblemWrapper::update(int mode, int n, const Colum
 {
     if (n != n_) throw_pretty("Invalid OPT++ state size, expecting " << n_ << " got " << n);
 
-    Eigen::VectorXd x(problem_->N);
-    Eigen::VectorXd x_prev = problem_->getInitialTrajectory()[0];
+    Eigen::VectorXd x = problem_->getInitialTrajectory()[0];
 
-    Eigen::VectorXd dx;
-
-    problem_->Update(x_prev, 0);
+    problem_->Update(x, 0);
     fx = problem_->getScalarTaskCost(0);
 
     for (int t = 1; t < problem_->getT(); t++)
@@ -156,7 +153,6 @@ void UnconstrainedTimeIndexedProblemWrapper::update(int mode, int n, const Colum
         for (int i = 0; i < problem_->N; i++) x(i) = x_opp((t - 1) * problem_->N + i + 1);
 
         problem_->Update(x, t);
-        dx = x - x_prev;
 
         if (mode & NLPFunction)
         {
@@ -175,7 +171,6 @@ void UnconstrainedTimeIndexedProblemWrapper::update(int mode, int n, const Colum
             }
             result = NLPGradient;
         }
-        x_prev = x;
     }
     storeCost(fx);
 }
@@ -202,41 +197,34 @@ void BoundedTimeIndexedProblemWrapper::update(int mode, int n, const ColumnVecto
     if(n!=n_) throw_pretty("Invalid OPT++ state size, expecting "<<n_<<" got "<<n);
     fx = 0.0;
 
-    Eigen::VectorXd x(problem_->N);
-    Eigen::VectorXd x_prev = problem_->getInitialTrajectory()[0];
-    Eigen::VectorXd x_prev_prev = x_prev;
-    double T = (double)problem_->getT();
-    double ct = 1.0/problem_->getTau()/T;
+    Eigen::VectorXd x = problem_->getInitialTrajectory()[0];
 
-    Eigen::VectorXd dx;
+    problem_->Update(x, 0);
+    fx = problem_->getScalarTaskCost(0);
 
-    for(int t=1; t<problem_->getT(); t++)
+    for (int t = 1; t < problem_->getT(); t++)
     {
-        for(int i=0; i<problem_->N; i++) x(i) = x_opp((t-1)*problem_->N+i+1);
+        for (int i = 0; i < problem_->N; i++) x(i) = x_opp((t - 1) * problem_->N + i + 1);
 
         problem_->Update(x, t);
-        dx = x - x_prev;
+
         if (mode & NLPFunction)
         {
-            fx += problem_->getScalarCost(t)*ct +
-                    ct*dx.transpose()*problem_->W*dx;
+            fx += problem_->getScalarTaskCost(t) + problem_->getScalarTransitionCost(t);
             result = NLPFunction;
         }
 
         if (mode & NLPGradient)
         {
-            Eigen::VectorXd J = problem_->getScalarJacobian(t)*ct
-                    + 2.0*ct*problem_->W*dx;
-            for(int i=0; i<problem_->N; i++) gx((t-1)*problem_->N+i+1) = J(i);
-            if(t>1)
+            Eigen::VectorXd J_control = problem_->getScalarTransitionJacobian(t);
+            Eigen::VectorXd J = problem_->getScalarTaskJacobian(t) + J_control;
+            for (int i = 0; i < problem_->N; i++) gx((t - 1) * problem_->N + i + 1) = J(i);
+            if (t > 1)
             {
-                J=-2.0*ct*problem_->W*dx;
-                for(int i=0; i<problem_->N; i++) gx((t-2)*problem_->N+i+1) += J(i);
+                for (int i = 0; i < problem_->N; i++) gx((t - 2) * problem_->N + i + 1) += -J_control(i);
             }
             result = NLPGradient;
         }
-        x_prev_prev = x_prev;
-        x_prev = x;
     }
     storeCost(fx);
 }
