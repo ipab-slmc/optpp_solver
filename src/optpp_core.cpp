@@ -68,13 +68,7 @@ void UnconstrainedEndPoseProblemWrapper::update(int mode, int n, const ColumnVec
         for (int i = 0; i < n; i++) gx(i + 1) = J(i);
         result = NLPGradient;
     }
-
-    // Store cost
-    int iter = solver_->getIter();
-    if (iter == 1) hasBeenInitialized = true;
-    if (!hasBeenInitialized) iter = 0;
-    // HIGHLIGHT_NAMED("UEPPW::update", "iter: " << iter << " cost: " << fx)
-    problem_->setCostEvolution(iter, fx);
+    storeCost(fx);
 }
 
 template<>
@@ -112,6 +106,7 @@ void BoundedEndPoseProblemWrapper::update(int mode, int n, const ColumnVector& x
         for(int i=0; i<n; i++) gx(i+1) = J(i);
         result = NLPGradient;
     }
+    storeCost(fx);
 }
 
 template<>
@@ -121,6 +116,7 @@ void BoundedEndPoseProblemWrapper::init(int n, ColumnVector& x)
     Eigen::VectorXd x0 = problem_->applyStartState();
     x.ReSize(n);
     for(int i=0; i<n; i++) x(i+1) = x0(i);
+    hasBeenInitialized = false;
 }
 
 template<>
@@ -185,13 +181,7 @@ void UnconstrainedTimeIndexedProblemWrapper::update(int mode, int n, const Colum
         }
         x_prev = x;
     }
-
-    // Store cost
-    int iter = solver_->getIter();
-    if (iter == 1) hasBeenInitialized = true;
-    if (!hasBeenInitialized) iter = 0;
-    // HIGHLIGHT_NAMED("UTIPW::update", "iter: " << iter << " cost: " << fx)
-    problem_->setCostEvolution(iter, fx);
+    storeCost(fx);
 }
 
 template<>
@@ -230,7 +220,6 @@ void BoundedTimeIndexedProblemWrapper::update(int mode, int n, const ColumnVecto
 
         problem_->Update(x, t);
         dx = x - x_prev;
-        HIGHLIGHT(t<<"\n"<<problem_->getScalarJacobian(t).transpose());
         if (mode & NLPFunction)
         {
             fx += problem_->getScalarCost(t)*ct +
@@ -253,6 +242,7 @@ void BoundedTimeIndexedProblemWrapper::update(int mode, int n, const ColumnVecto
         x_prev_prev = x_prev;
         x_prev = x;
     }
+    storeCost(fx);
 }
 
 template<>
@@ -261,9 +251,10 @@ void BoundedTimeIndexedProblemWrapper::init(int n, ColumnVector& x)
     n=n_ = problem_->N*(problem_->T-1);
     const std::vector<Eigen::VectorXd>& init = problem_->getInitialTrajectory();
     x.ReSize(n);
-    for(int t=1; t<problem_->T; t++)
-        for(int i=0; i<problem_->N; i++)
-            x((t-1)*problem_->N+i+1) = init[t](i);
+    for (int t = 1; t < problem_->getT(); t++)
+        for (int i = 0; i < problem_->N; i++)
+            x((t - 1) * problem_->N + i + 1) = init[t](i);
+    hasBeenInitialized = false;
 }
 
 template<>

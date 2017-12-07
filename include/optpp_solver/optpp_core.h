@@ -96,9 +96,25 @@ public:
         return std::shared_ptr<NLF1Wrapper<ProblemType>>(new NLF1Wrapper<ProblemType>(this->shared_from_this()));
     }
 
+    inline void setSolver(std::shared_ptr<OPTPP::OptimizeClass> solver)
+    {
+        solver_ = solver;
+    }
+
+    inline void storeCost(double fx)
+    {
+        // Store cost
+        int iter = solver_->getIter();
+        if (iter == 1) hasBeenInitialized = true;
+        if (!hasBeenInitialized) iter = 0;
+        //problem_->setCostEvolution(iter, fx);
+    }
+
 
     std::shared_ptr<ProblemType> problem_;
+    std::shared_ptr<OPTPP::OptimizeClass> solver_;
     int n_;
+    bool hasBeenInitialized;
 };
 
 template<typename ProblemType>
