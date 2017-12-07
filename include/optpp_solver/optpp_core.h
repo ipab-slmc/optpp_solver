@@ -71,12 +71,14 @@ public:
     static void updateCallback(int mode, int n, const ColumnVector& x, double& fx, ColumnVector& gx, int& result, void* data)
     {
         reinterpret_cast<ProblemWrapper<ProblemType>*>(data)->update(mode, n, x, fx, gx, result);
+        if(Server::isRos() && !ros::ok()) throw_pretty("OPTPPP solver interrupted!");
     }
 
     static void updateCallbackFD(int n, const ColumnVector& x, double& fx, int& result, void* data)
     {
         ColumnVector gx;
         reinterpret_cast<ProblemWrapper<ProblemType>*>(data)->update(NLPFunction, n, x, fx, gx, result);
+        if(Server::isRos() && !ros::ok()) throw_pretty("OPTPPP solver interrupted!");
     }
 
     void setSolver(std::shared_ptr<OPTPP::OptimizeClass> solver);
