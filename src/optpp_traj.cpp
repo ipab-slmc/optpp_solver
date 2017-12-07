@@ -74,22 +74,12 @@ void OptppTrajLBFGS::Solve(Eigen::MatrixXd& solution)
 
     Try
     {
-        std::shared_ptr<NLP1> nlf;
-        std::shared_ptr<OPTPP::OptLBFGS> solver(new OPTPP::OptLBFGS());
-        if (parameters_.UseFiniteDifferences)
-        {
-            auto nlf_local = UnconstrainedTimeIndexedProblemWrapper(prob_).getFDNLF1();
-            nlf = std::static_pointer_cast<NLP1>(nlf_local);
-            solver.reset(new OPTPP::OptLBFGS(nlf.get()));
-            nlf_local->setSolver(std::static_pointer_cast<OPTPP::OptimizeClass>(solver));
-        }
-        else
-        {
-            auto nlf_local = UnconstrainedTimeIndexedProblemWrapper(prob_).getNLF1();
-            nlf = std::static_pointer_cast<NLP1>(nlf_local);
-            solver.reset(new OPTPP::OptLBFGS(nlf.get()));
-            nlf_local->setSolver(std::static_pointer_cast<OPTPP::OptimizeClass>(solver));
-        }
+        auto wrapper = std::make_shared<UnconstrainedTimeIndexedProblemWrapper>(prob_);
+        std::shared_ptr<NLP1> nlf = parameters_.UseFiniteDifferences?
+                        std::static_pointer_cast<NLP1>(wrapper->getFDNLF1()):
+                        std::static_pointer_cast<NLP1>(wrapper->getNLF1());
+        auto solver = std::make_shared<OPTPP::OptLBFGS>(nlf.get());
+        wrapper->setSolver(solver);
         solver->setGradTol(parameters_.GradientTolerance);
         solver->setMaxBacktrackIter(parameters_.MaxBacktrackIterations);
         solver->setLineSearchTol(parameters_.LineSearchTolerance);
@@ -97,9 +87,9 @@ void OptppTrajLBFGS::Solve(Eigen::MatrixXd& solution)
         solver->setMaxIter(parameters_.MaxIterations);
         solver->optimize();
         ColumnVector sol = nlf->getXc();
-        for (int t = 1; t < prob_->getT(); t++)
-            for (int i = 0; i < prob_->N; i++)
-                solution(t, i) = sol((t - 1) * prob_->N + i + 1);
+        for(int t=1; t<prob_->T; t++)
+            for(int i=0; i<prob_->N; i++)
+                solution(t,i) = sol((t-1)*prob_->N+i+1);
         iter = solver->getIter();
         feval = nlf->getFevals();
         geval = nlf->getGevals();
@@ -144,31 +134,21 @@ void OptppTrajCG::Solve(Eigen::MatrixXd& solution)
 
     Try
     {
-        std::shared_ptr<NLP1> nlf;
-        std::shared_ptr<OPTPP::OptCG> solver(new OPTPP::OptCG());
-        if (parameters_.UseFiniteDifferences)
-        {
-            auto nlf_local = UnconstrainedTimeIndexedProblemWrapper(prob_).getFDNLF1();
-            nlf = std::static_pointer_cast<NLP1>(nlf_local);
-            solver.reset(new OPTPP::OptCG(nlf.get()));
-            nlf_local->setSolver(std::static_pointer_cast<OPTPP::OptimizeClass>(solver));
-        }
-        else
-        {
-            auto nlf_local = UnconstrainedTimeIndexedProblemWrapper(prob_).getNLF1();
-            nlf = std::static_pointer_cast<NLP1>(nlf_local);
-            solver.reset(new OPTPP::OptCG(nlf.get()));
-            nlf_local->setSolver(std::static_pointer_cast<OPTPP::OptimizeClass>(solver));
-        }
+        auto wrapper = std::make_shared<UnconstrainedTimeIndexedProblemWrapper>(prob_);
+        std::shared_ptr<NLP1> nlf = parameters_.UseFiniteDifferences?
+                        std::static_pointer_cast<NLP1>(wrapper->getFDNLF1()):
+                        std::static_pointer_cast<NLP1>(wrapper->getNLF1());
+        auto solver = std::make_shared<OPTPP::OptCG>(nlf.get());
+        wrapper->setSolver(solver);
         solver->setGradTol(parameters_.GradientTolerance);
         solver->setMaxBacktrackIter(parameters_.MaxBacktrackIterations);
         solver->setLineSearchTol(parameters_.LineSearchTolerance);
         solver->setMaxIter(parameters_.MaxIterations);
         solver->optimize();
         ColumnVector sol = nlf->getXc();
-        for (int t = 1; t < prob_->getT(); t++)
-            for (int i = 0; i < prob_->N; i++)
-                solution(t, i) = sol((t - 1) * prob_->N + i + 1);
+        for(int t=1; t<prob_->T; t++)
+            for(int i=0; i<prob_->N; i++)
+                solution(t,i) = sol((t-1)*prob_->N+i+1);
         iter = solver->getIter();
         feval = nlf->getFevals();
         geval = nlf->getGevals();
@@ -213,31 +193,21 @@ void OptppTrajQNewton::Solve(Eigen::MatrixXd& solution)
 
     Try
     {
-        std::shared_ptr<NLP1> nlf;
-        std::shared_ptr<OPTPP::OptQNewton> solver(new OPTPP::OptQNewton());
-        if (parameters_.UseFiniteDifferences)
-        {
-            auto nlf_local = UnconstrainedTimeIndexedProblemWrapper(prob_).getFDNLF1();
-            nlf = std::static_pointer_cast<NLP1>(nlf_local);
-            solver.reset(new OPTPP::OptQNewton(nlf.get()));
-            nlf_local->setSolver(std::static_pointer_cast<OPTPP::OptimizeClass>(solver));
-        }
-        else
-        {
-            auto nlf_local = UnconstrainedTimeIndexedProblemWrapper(prob_).getNLF1();
-            nlf = std::static_pointer_cast<NLP1>(nlf_local);
-            solver.reset(new OPTPP::OptQNewton(nlf.get()));
-            nlf_local->setSolver(std::static_pointer_cast<OPTPP::OptimizeClass>(solver));
-        }
+        auto wrapper = std::make_shared<UnconstrainedTimeIndexedProblemWrapper>(prob_);
+        std::shared_ptr<NLP1> nlf = parameters_.UseFiniteDifferences?
+                        std::static_pointer_cast<NLP1>(wrapper->getFDNLF1()):
+                        std::static_pointer_cast<NLP1>(wrapper->getNLF1());
+        auto solver = std::make_shared<OPTPP::OptQNewton>(nlf.get());
+        wrapper->setSolver(solver);
         solver->setGradTol(parameters_.GradientTolerance);
         solver->setMaxBacktrackIter(parameters_.MaxBacktrackIterations);
         solver->setLineSearchTol(parameters_.LineSearchTolerance);
         solver->setMaxIter(parameters_.MaxIterations);
         solver->optimize();
         ColumnVector sol = nlf->getXc();
-        for (int t = 1; t < prob_->getT(); t++)
-            for (int i = 0; i < prob_->N; i++)
-                solution(t, i) = sol((t - 1) * prob_->N + i + 1);
+        for(int t=1; t<prob_->T; t++)
+            for(int i=0; i<prob_->N; i++)
+                solution(t,i) = sol((t-1)*prob_->N+i+1);
         iter = solver->getIter();
         feval = nlf->getFevals();
         geval = nlf->getGevals();
@@ -282,31 +252,21 @@ void OptppTrajFDNewton::Solve(Eigen::MatrixXd& solution)
 
     Try
     {
-        std::shared_ptr<NLP1> nlf;
-        std::shared_ptr<OPTPP::OptFDNewton> solver(new OPTPP::OptFDNewton());
-        if (parameters_.UseFiniteDifferences)
-        {
-            auto nlf_local = UnconstrainedTimeIndexedProblemWrapper(prob_).getFDNLF1();
-            nlf = std::static_pointer_cast<NLP1>(nlf_local);
-            solver.reset(new OPTPP::OptFDNewton(nlf.get()));
-            nlf_local->setSolver(std::static_pointer_cast<OPTPP::OptimizeClass>(solver));
-        }
-        else
-        {
-            auto nlf_local = UnconstrainedTimeIndexedProblemWrapper(prob_).getNLF1();
-            nlf = std::static_pointer_cast<NLP1>(nlf_local);
-            solver.reset(new OPTPP::OptFDNewton(nlf.get()));
-            nlf_local->setSolver(std::static_pointer_cast<OPTPP::OptimizeClass>(solver));
-        }
+        auto wrapper = std::make_shared<UnconstrainedTimeIndexedProblemWrapper>(prob_);
+        std::shared_ptr<NLP1> nlf = parameters_.UseFiniteDifferences?
+                        std::static_pointer_cast<NLP1>(wrapper->getFDNLF1()):
+                        std::static_pointer_cast<NLP1>(wrapper->getNLF1());
+        auto solver = std::make_shared<OPTPP::OptFDNewton>(nlf.get());
+        wrapper->setSolver(solver);
         solver->setGradTol(parameters_.GradientTolerance);
         solver->setMaxBacktrackIter(parameters_.MaxBacktrackIterations);
         solver->setLineSearchTol(parameters_.LineSearchTolerance);
         solver->setMaxIter(parameters_.MaxIterations);
         solver->optimize();
         ColumnVector sol = nlf->getXc();
-        for (int t = 1; t < prob_->getT(); t++)
-            for (int i = 0; i < prob_->N; i++)
-                solution(t, i) = sol((t - 1) * prob_->N + i + 1);
+        for(int t=1; t<prob_->T; t++)
+            for(int i=0; i<prob_->N; i++)
+                solution(t,i) = sol((t-1)*prob_->N+i+1);
         iter = solver->getIter();
         feval = nlf->getFevals();
         geval = nlf->getGevals();
@@ -347,26 +307,22 @@ void OptppTrajGSS::Solve(Eigen::MatrixXd& solution)
 
     solution.resize(prob_->getT(), prob_->N);
     solution.row(0) = prob_->getInitialTrajectory()[0];
-    int iter, feval, geval, ret;
+    int iter, feval, ret;
 
     Try
     {
-        std::shared_ptr<NLP1> nlf;
-        std::shared_ptr<OPTPP::OptGSS> solver(new OPTPP::OptGSS());
-        GenSetStd setBase(problem_->N);
-
-        auto nlf_local = UnconstrainedTimeIndexedProblemWrapper(prob_).getFDNLF1();
-        nlf = std::static_pointer_cast<NLP1>(nlf_local);
-        solver.reset(new OPTPP::OptGSS(nlf.get(), &setBase));
-        nlf_local->setSolver(std::static_pointer_cast<OPTPP::OptimizeClass>(solver));
-
+        auto wrapper = std::make_shared<UnconstrainedTimeIndexedProblemWrapper>(prob_);
+        std::shared_ptr<NLP1> nlf = std::static_pointer_cast<NLP1>(wrapper->getFDNLF1());
+        GenSetStd setBase(problem_->N*(prob_->T-1));
+        auto solver = std::make_shared<OPTPP::OptGSS>(nlf.get(), &setBase);
+        wrapper->setSolver(solver);
         solver->setFullSearch(true);
         solver->setMaxIter(parameters_.MaxIterations);
         solver->optimize();
         ColumnVector sol = nlf->getXc();
-        for (int t = 1; t < prob_->getT(); t++)
-            for (int i = 0; i < prob_->N; i++)
-                solution(t, i) = sol((t - 1) * prob_->N + i + 1);
+        for(int t=1; t<prob_->T; t++)
+            for(int i=0; i<prob_->N; i++)
+                solution(t,i) = sol((t-1)*prob_->N+i+1);
         iter = solver->getIter();
         feval = nlf->getFevals();
         ret = solver->getReturnCode();
@@ -413,30 +369,26 @@ void OptppTrajBCQNewton::Solve(Eigen::MatrixXd& solution)
 
     Try
     {
-        std::shared_ptr<NLP1> nlf;
-        if(parameters_.UseFiniteDifferences)
-        {
-            nlf = std::static_pointer_cast<NLP1>(BoundedTimeIndexedProblemWrapper(prob_).getFDNLF1());
-        }
-        else
-        {
-            nlf = std::static_pointer_cast<NLP1>(BoundedTimeIndexedProblemWrapper(prob_).getNLF1());
-        }
-        OPTPP::OptBCQNewton solver(nlf.get());
-        solver.setGradTol(parameters_.GradientTolerance);
-        solver.setMaxBacktrackIter(parameters_.MaxBacktrackIterations);
-        solver.setLineSearchTol(parameters_.LineSearchTolerance);
-        solver.setMaxIter(parameters_.MaxIterations);
-        solver.optimize();
+        auto wrapper = std::make_shared<BoundedTimeIndexedProblemWrapper>(prob_);
+        std::shared_ptr<NLP1> nlf = parameters_.UseFiniteDifferences?
+                        std::static_pointer_cast<NLP1>(wrapper->getFDNLF1()):
+                        std::static_pointer_cast<NLP1>(wrapper->getNLF1());
+        auto solver = std::make_shared<OPTPP::OptBCQNewton>(nlf.get());
+        wrapper->setSolver(solver);
+        solver->setGradTol(parameters_.GradientTolerance);
+        solver->setMaxBacktrackIter(parameters_.MaxBacktrackIterations);
+        solver->setLineSearchTol(parameters_.LineSearchTolerance);
+        solver->setMaxIter(parameters_.MaxIterations);
+        solver->optimize();
         ColumnVector sol = nlf->getXc();
         for(int t=1; t<prob_->T; t++)
             for(int i=0; i<prob_->N; i++)
                 solution(t,i) = sol((t-1)*prob_->N+i+1);
-        iter = solver.getIter();
+        iter = solver->getIter();
         feval = nlf->getFevals();
         geval = nlf->getGevals();
-        ret = solver.getReturnCode();
-        solver.cleanup();
+        ret = solver->getReturnCode();
+        solver->cleanup();
     }
     CatchAll
     {
@@ -479,30 +431,26 @@ void OptppTrajFDNIPS::Solve(Eigen::MatrixXd& solution)
 
     Try
     {
-        std::shared_ptr<NLP1> nlf;
-        if(parameters_.UseFiniteDifferences)
-        {
-            nlf = std::static_pointer_cast<NLP1>(BoundedTimeIndexedProblemWrapper(prob_).getFDNLF1());
-        }
-        else
-        {
-            nlf = std::static_pointer_cast<NLP1>(BoundedTimeIndexedProblemWrapper(prob_).getNLF1());
-        }
-        OPTPP::OptFDNIPS solver(nlf.get());
-        solver.setGradTol(parameters_.GradientTolerance);
-        solver.setMaxBacktrackIter(parameters_.MaxBacktrackIterations);
-        solver.setLineSearchTol(parameters_.LineSearchTolerance);
-        solver.setMaxIter(parameters_.MaxIterations);
-        solver.optimize();
+        auto wrapper = std::make_shared<BoundedTimeIndexedProblemWrapper>(prob_);
+        std::shared_ptr<NLP1> nlf = parameters_.UseFiniteDifferences?
+                        std::static_pointer_cast<NLP1>(wrapper->getFDNLF1()):
+                        std::static_pointer_cast<NLP1>(wrapper->getNLF1());
+        auto solver = std::make_shared<OPTPP::OptFDNIPS>(nlf.get());
+        wrapper->setSolver(solver);
+        solver->setGradTol(parameters_.GradientTolerance);
+        solver->setMaxBacktrackIter(parameters_.MaxBacktrackIterations);
+        solver->setLineSearchTol(parameters_.LineSearchTolerance);
+        solver->setMaxIter(parameters_.MaxIterations);
+        solver->optimize();
         ColumnVector sol = nlf->getXc();
         for(int t=1; t<prob_->T; t++)
             for(int i=0; i<prob_->N; i++)
                 solution(t,i) = sol((t-1)*prob_->N+i+1);
-        iter = solver.getIter();
+        iter = solver->getIter();
         feval = nlf->getFevals();
         geval = nlf->getGevals();
-        ret = solver.getReturnCode();
-        solver.cleanup();
+        ret = solver->getReturnCode();
+        solver->cleanup();
     }
     CatchAll
     {

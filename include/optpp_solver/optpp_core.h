@@ -57,7 +57,7 @@ template<typename ProblemType> class NLF1WrapperFD;
 template<typename ProblemType> class ProblemWrapper;
 
 template<typename ProblemType>
-class ProblemWrapper
+class ProblemWrapper : public std::enable_shared_from_this<ProblemWrapper<ProblemType>>
 {
 public:
     ProblemWrapper(std::shared_ptr<ProblemType> problem):
@@ -89,12 +89,12 @@ public:
 
     std::shared_ptr<NLF1WrapperFD<ProblemType>> getFDNLF1()
     {
-        return std::shared_ptr<NLF1WrapperFD<ProblemType>>(new NLF1WrapperFD<ProblemType>(*this));
+        return std::shared_ptr<NLF1WrapperFD<ProblemType>>(new NLF1WrapperFD<ProblemType>(this->shared_from_this()));
     }
 
     std::shared_ptr<NLF1Wrapper<ProblemType>> getNLF1()
     {
-        return std::shared_ptr<NLF1Wrapper<ProblemType>>(new NLF1Wrapper<ProblemType>(*this));
+        return std::shared_ptr<NLF1Wrapper<ProblemType>>(new NLF1Wrapper<ProblemType>(this->shared_from_this()));
     }
 
 
@@ -107,52 +107,52 @@ template<typename ProblemType>
 class NLF1Wrapper : public virtual NLF1
 {
 public:
-    NLF1Wrapper(const ProblemWrapper<ProblemType>& parent): parent_(parent),
+    NLF1Wrapper(std::shared_ptr<ProblemWrapper<ProblemType>> parent): parent_(parent),
         NLF1(parent.n_, ProblemWrapper<ProblemType>::updateCallback, nullptr, parent.constrains_, (void*)nullptr)
     {
-        vptr = reinterpret_cast<ProblemWrapper<ProblemType>*>(&parent_);
+        vptr = reinterpret_cast<ProblemWrapper<ProblemType>*>(parent_.get());
     }
 
     virtual void initFcn()
     {
         if (init_flag == false)
         {
-            parent_.init(dim, mem_xc);
+            parent_->init(dim, mem_xc);
             init_flag = true;
         }
         else
         {
-          parent_.init(dim, mem_xc);
+          parent_->init(dim, mem_xc);
         }
     }
 protected:
-    ProblemWrapper<ProblemType> parent_;
+    std::shared_ptr<ProblemWrapper<ProblemType>> parent_;
 };
 
 template<typename ProblemType>
 class NLF1WrapperFD : public virtual FDNLF1
 {
 public:
-    NLF1WrapperFD(const ProblemWrapper<ProblemType>& parent): parent_(parent),
+    NLF1WrapperFD(std::shared_ptr<ProblemWrapper<ProblemType>> parent): parent_(parent),
         FDNLF1(parent.n_, ProblemWrapper<ProblemType>::updateCallbackFD, nullptr, parent.constrains_, (void*)nullptr)
     {
-        vptr = reinterpret_cast<ProblemWrapper<ProblemType>*>(&parent_);
+        vptr = reinterpret_cast<ProblemWrapper<ProblemType>*>(parent_.get());
     }
 
     virtual void initFcn()
     {
         if (init_flag == false)
         {
-            parent_.init(dim, mem_xc);
+            parent_->init(dim, mem_xc);
             init_flag = true;
         }
         else
         {
-          parent_.init(dim, mem_xc);
+          parent_->init(dim, mem_xc);
         }
     }
 protected:
-    ProblemWrapper<ProblemType> parent_;
+    std::shared_ptr<ProblemWrapper<ProblemType>> parent_;
 };
 
 typedef ProblemWrapper<UnconstrainedEndPoseProblem> UnconstrainedEndPoseProblemWrapper;
