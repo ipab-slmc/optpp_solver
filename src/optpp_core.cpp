@@ -43,10 +43,6 @@
 
 namespace exotica
 {
-UnconstrainedEndPoseProblemWrapper::UnconstrainedEndPoseProblemWrapper(UnconstrainedEndPoseProblem_ptr problem) : problem_(problem), n_(problem_->N)
-{
-    if (problem_->getNominalPose().rows() > 0) throw_pretty("OPT++ solvers don't support null-space optimization! " << problem_->getNominalPose().rows());
-}
 
 template<>
 void UnconstrainedEndPoseProblemWrapper::update(int mode, int n, const ColumnVector& x_opp, double& fx, ColumnVector& gx, int& result)
@@ -188,7 +184,7 @@ template<>
 void UnconstrainedTimeIndexedProblemWrapper::init(int n, ColumnVector& x)
 {
     if (n != n_) throw_pretty("Invalid OPT++ state size, expecting " << n_ << " got " << n);
-    n=n_ = problem_->N*(problem_->T-1);
+    n=n_ = problem_->N*(problem_->getT()-1);
     const std::vector<Eigen::VectorXd>& init = problem_->getInitialTrajectory();
     x.ReSize(n);
     for (int t = 1; t < problem_->getT(); t++)
@@ -209,12 +205,12 @@ void BoundedTimeIndexedProblemWrapper::update(int mode, int n, const ColumnVecto
     Eigen::VectorXd x(problem_->N);
     Eigen::VectorXd x_prev = problem_->getInitialTrajectory()[0];
     Eigen::VectorXd x_prev_prev = x_prev;
-    double T = (double)problem_->T;
-    double ct = 1.0/problem_->tau/T;
+    double T = (double)problem_->getT();
+    double ct = 1.0/problem_->getTau()/T;
 
     Eigen::VectorXd dx;
 
-    for(int t=1; t<problem_->T; t++)
+    for(int t=1; t<problem_->getT(); t++)
     {
         for(int i=0; i<problem_->N; i++) x(i) = x_opp((t-1)*problem_->N+i+1);
 
@@ -248,7 +244,7 @@ void BoundedTimeIndexedProblemWrapper::update(int mode, int n, const ColumnVecto
 template<>
 void BoundedTimeIndexedProblemWrapper::init(int n, ColumnVector& x)
 {
-    n=n_ = problem_->N*(problem_->T-1);
+    n=n_ = problem_->N*(problem_->getT()-1);
     const std::vector<Eigen::VectorXd>& init = problem_->getInitialTrajectory();
     x.ReSize(n);
     for (int t = 1; t < problem_->getT(); t++)
@@ -260,7 +256,7 @@ void BoundedTimeIndexedProblemWrapper::init(int n, ColumnVector& x)
 template<>
 CompoundConstraint* BoundedTimeIndexedProblemWrapper::createConstraints()
 {
-    int T = problem_->T-1;
+    int T = problem_->getT()-1;
     int n = problem_->N;
     ColumnVector lower(n*T);
     ColumnVector upper(n*T);

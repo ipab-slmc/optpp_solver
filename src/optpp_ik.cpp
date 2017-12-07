@@ -347,6 +347,7 @@ void OptppIKBCQNewton::Solve(Eigen::MatrixXd& solution)
 
     if (!prob_) throw_named("Solver has not been initialized!");
     prob_->preupdate();
+    prob_->resetCostEvolution(parameters_.MaxIterations);
 
     solution.resize(1, prob_->N);
     int iter, feval, geval, ret;
@@ -405,6 +406,7 @@ void OptppIKFDNIPS::Solve(Eigen::MatrixXd& solution)
 
     if (!prob_) throw_named("Solver has not been initialized!");
     prob_->preupdate();
+    prob_->resetCostEvolution(parameters_.MaxIterations);
 
     solution.resize(1, prob_->N);
     int iter, feval, geval, ret;

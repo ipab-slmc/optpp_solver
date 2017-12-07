@@ -80,8 +80,6 @@ public:
         if(Server::isRos() && !ros::ok()) throw_pretty("OPTPPP solver interrupted!");
     }
 
-    void setSolver(std::shared_ptr<OPTPP::OptimizeClass> solver);
-
     void update(int mode, int n, const ColumnVector& x, double& fx, ColumnVector& gx, int& result);
     void init(int n, ColumnVector& x);
     CompoundConstraint* createConstraints();
@@ -103,11 +101,10 @@ public:
 
     inline void storeCost(double fx)
     {
-        // Store cost
         int iter = solver_->getIter();
         if (iter == 1) hasBeenInitialized = true;
         if (!hasBeenInitialized) iter = 0;
-        //problem_->setCostEvolution(iter, fx);
+        problem_->setCostEvolution(iter, fx);
     }
 
 
