@@ -20,6 +20,12 @@
         </EndEffector>
       </EffFrame>
     </Maps>
+
+
+    <Cost>
+        <Task Task="Position"/>
+    </Cost>
+
     <W> 7 6 5 4 3 2 1 </W>
   </UnconstrainedEndPoseProblem>
 

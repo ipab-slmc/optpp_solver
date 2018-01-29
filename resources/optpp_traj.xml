@@ -30,6 +30,10 @@
         </EndEffector>
       </EffFrame>
     </Maps>
+
+    <Cost>
+        <Task Task="Frame"/>
+    </Cost>
    
     <Rho>1e4</Rho>
     <T>233</T>
