@@ -164,6 +164,7 @@ void OptppTrajCG::Solve(Eigen::MatrixXd& solution)
         solver->setGradTol(parameters_.GradientTolerance);
         solver->setMaxBacktrackIter(parameters_.MaxBacktrackIterations);
         solver->setLineSearchTol(parameters_.LineSearchTolerance);
+        solver->setStepTol(parameters_.StepTolerance);
         solver->setMaxIter(parameters_.MaxIterations);
         solver->optimize();
         ColumnVector sol = nlf->getXc();
@@ -233,6 +234,7 @@ void OptppTrajQNewton::Solve(Eigen::MatrixXd& solution)
         solver->setGradTol(parameters_.GradientTolerance);
         solver->setMaxBacktrackIter(parameters_.MaxBacktrackIterations);
         solver->setLineSearchTol(parameters_.LineSearchTolerance);
+        solver->setStepTol(parameters_.StepTolerance);
         solver->setMaxIter(parameters_.MaxIterations);
         solver->optimize();
         ColumnVector sol = nlf->getXc();
@@ -302,6 +304,7 @@ void OptppTrajFDNewton::Solve(Eigen::MatrixXd& solution)
         solver->setGradTol(parameters_.GradientTolerance);
         solver->setMaxBacktrackIter(parameters_.MaxBacktrackIterations);
         solver->setLineSearchTol(parameters_.LineSearchTolerance);
+        solver->setStepTol(parameters_.StepTolerance);
         solver->setMaxIter(parameters_.MaxIterations);
         solver->optimize();
         ColumnVector sol = nlf->getXc();

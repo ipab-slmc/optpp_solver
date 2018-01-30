@@ -93,6 +93,7 @@ void OptppIKLBFGS::Solve(Eigen::MatrixXd& solution)
         solver->setGradTol(parameters_.GradientTolerance);
         solver->setMaxBacktrackIter(parameters_.MaxBacktrackIterations);
         solver->setLineSearchTol(parameters_.LineSearchTolerance);
+        solver->setStepTol(parameters_.StepTolerance);
         solver->setMaxIter(parameters_.MaxIterations);
         ColumnVector W(prob_->N);
         for (int i = 0; i < prob_->N; i++) W(i + 1) = prob_->W(i, i);
@@ -162,6 +163,7 @@ void OptppIKCG::Solve(Eigen::MatrixXd& solution)
         solver->setGradTol(parameters_.GradientTolerance);
         solver->setMaxBacktrackIter(parameters_.MaxBacktrackIterations);
         solver->setLineSearchTol(parameters_.LineSearchTolerance);
+        solver->setStepTol(parameters_.StepTolerance);
         solver->setMaxIter(parameters_.MaxIterations);
         ColumnVector W(prob_->N);
         for (int i = 0; i < prob_->N; i++) W(i + 1) = prob_->W(i, i);
@@ -231,6 +233,7 @@ void OptppIKQNewton::Solve(Eigen::MatrixXd& solution)
         solver->setGradTol(parameters_.GradientTolerance);
         solver->setMaxBacktrackIter(parameters_.MaxBacktrackIterations);
         solver->setLineSearchTol(parameters_.LineSearchTolerance);
+        solver->setStepTol(parameters_.StepTolerance);
         solver->setMaxIter(parameters_.MaxIterations);
         ColumnVector W(prob_->N);
         for (int i = 0; i < prob_->N; i++) W(i + 1) = prob_->W(i, i);
@@ -300,6 +303,7 @@ void OptppIKFDNewton::Solve(Eigen::MatrixXd& solution)
         solver->setGradTol(parameters_.GradientTolerance);
         solver->setMaxBacktrackIter(parameters_.MaxBacktrackIterations);
         solver->setLineSearchTol(parameters_.LineSearchTolerance);
+        solver->setStepTol(parameters_.StepTolerance);
         solver->setMaxIter(parameters_.MaxIterations);
         ColumnVector W(prob_->N);
         for (int i = 0; i < prob_->N; i++) W(i + 1) = prob_->W(i, i);
