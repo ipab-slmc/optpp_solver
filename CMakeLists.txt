@@ -8,8 +8,19 @@ find_package(catkin REQUIRED COMPONENTS
   optpp_catkin
 )
 
-AddInitializer(OptppIKLBFGS OptppIKCG OptppIKQNewton OptppIKFDNewton OptppIKGSS
-    OptppTrajLBFGS OptppTrajCG OptppTrajQNewton OptppTrajFDNewton OptppTrajGSS)
+AddInitializer(
+  OptppMotionSolver
+  OptppIKLBFGS
+  OptppIKCG
+  OptppIKQNewton
+  OptppIKFDNewton
+  OptppIKGSS
+  OptppTrajLBFGS
+  OptppTrajCG
+  OptppTrajQNewton
+  OptppTrajFDNewton
+  OptppTrajGSS
+)
 GenInitializers()
 
 catkin_package(

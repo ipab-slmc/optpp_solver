@@ -1,6 +1,1 @@
-extend <exotica/MotionSolver>
-Optional bool UseFiniteDifferences = false;
-Optional double GradientTolerance = 1e-6;
-Optional int MaxBacktrackIterations = 10;
-Optional double LineSearchTolerance = 1e-4;
-Optional int MaxIterations = 100;
+extend <optpp_solver/OptppMotionSolver>
