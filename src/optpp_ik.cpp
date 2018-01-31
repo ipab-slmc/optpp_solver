@@ -117,7 +117,7 @@ void OptppIKLBFGS::Solve(Eigen::MatrixXd& solution)
 
     if (debug_)
     {
-        HIGHLIGHT_NAMED(object_name_ + " OptppIKLBFGS", "Time: " << planning_time_ << " ,Status: " << ret << " , Iterations: " << iter << " ,Feval: " << feval << " , Geval: " << geval);
+        HIGHLIGHT_NAMED(object_name_ + " OptppIKLBFGS", "Time: " << planning_time_ << ", Status: " << ret << ", Iterations: " << iter << ", Feval: " << feval << ", Geval: " << geval);
     }
 }
 
@@ -187,7 +187,7 @@ void OptppIKCG::Solve(Eigen::MatrixXd& solution)
 
     if (debug_)
     {
-        HIGHLIGHT_NAMED(object_name_ + " OptppIKCG", "Time: " << planning_time_ << " ,Status: " << ret << " , Iterations: " << iter << " ,Feval: " << feval << " , Geval: " << geval);
+        HIGHLIGHT_NAMED(object_name_ + " OptppIKCG", "Time: " << planning_time_ << ", Status: " << ret << ", Iterations: " << iter << ", Feval: " << feval << ", Geval: " << geval);
     }
 }
 
@@ -257,7 +257,7 @@ void OptppIKQNewton::Solve(Eigen::MatrixXd& solution)
 
     if (debug_)
     {
-        HIGHLIGHT_NAMED(object_name_ + " OptppIKQNewton", "Time: " << planning_time_ << " ,Status: " << ret << " , Iterations: " << iter << " ,Feval: " << feval << " , Geval: " << geval);
+        HIGHLIGHT_NAMED(object_name_ + " OptppIKQNewton", "Time: " << planning_time_ << ", Status: " << ret << ", Iterations: " << iter << ", Feval: " << feval << ", Geval: " << geval);
     }
 }
 
@@ -327,7 +327,7 @@ void OptppIKFDNewton::Solve(Eigen::MatrixXd& solution)
 
     if (debug_)
     {
-        HIGHLIGHT_NAMED(object_name_ + " OptppIKFDNewton", "Time: " << planning_time_ << " ,Status: " << ret << " , Iterations: " << iter << " ,Feval: " << feval << " , Geval: " << geval);
+        HIGHLIGHT_NAMED(object_name_ + " OptppIKFDNewton", "Time: " << planning_time_ << ", Status: " << ret << ", Iterations: " << iter << ", Feval: " << feval << ", Geval: " << geval);
     }
 }
 
@@ -386,7 +386,7 @@ void OptppIKGSS::Solve(Eigen::MatrixXd& solution)
 
     if (debug_)
     {
-        HIGHLIGHT_NAMED(object_name_ + " OptppIKGSS", "Time: " << planning_time_ << " ,Status: " << ret << " , Iterations: " << iter << " ,Feval: " << feval);
+        HIGHLIGHT_NAMED(object_name_ + " OptppIKGSS", "Time: " << planning_time_ << ", Status: " << ret << ", Iterations: " << iter << ", Feval: " << feval);
     }
 }
 }

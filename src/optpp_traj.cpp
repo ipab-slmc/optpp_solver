@@ -55,7 +55,7 @@ void OptppTrajLBFGS::specifyProblem(PlanningProblem_ptr pointer)
 {
     if (pointer->type() != "exotica::UnconstrainedTimeIndexedProblem")
     {
-        throw_named("OPT++ IK can't solve problem of type '" << pointer->type() << "'!");
+        throw_named("OPT++ Trajectory can't solve problem of type '" << pointer->type() << "'!");
     }
     MotionSolver::specifyProblem(pointer);
     prob_ = std::static_pointer_cast<UnconstrainedTimeIndexedProblem>(pointer);
@@ -125,7 +125,7 @@ void OptppTrajCG::specifyProblem(PlanningProblem_ptr pointer)
 {
     if (pointer->type() != "exotica::UnconstrainedTimeIndexedProblem")
     {
-        throw_named("OPT++ IK can't solve problem of type '" << pointer->type() << "'!");
+        throw_named("OPT++ Trajectory can't solve problem of type '" << pointer->type() << "'!");
     }
     MotionSolver::specifyProblem(pointer);
     prob_ = std::static_pointer_cast<UnconstrainedTimeIndexedProblem>(pointer);
@@ -187,7 +187,7 @@ void OptppTrajCG::Solve(Eigen::MatrixXd& solution)
 
     if (debug_)
     {
-        HIGHLIGHT_NAMED(object_name_ + " OptppTrajCG", "Time: " << planning_time_ << " ,Status: " << ret << " , Iterations: " << iter << " ,Feval: " << feval << " , Geval: " << geval);
+        HIGHLIGHT_NAMED(object_name_ + " OptppTrajCG", "Time: " << planning_time_ << ", Status: " << ret << ", Iterations: " << iter << ", Feval: " << feval << ", Geval: " << geval);
     }
 }
 
@@ -195,7 +195,7 @@ void OptppTrajQNewton::specifyProblem(PlanningProblem_ptr pointer)
 {
     if (pointer->type() != "exotica::UnconstrainedTimeIndexedProblem")
     {
-        throw_named("OPT++ IK can't solve problem of type '" << pointer->type() << "'!");
+        throw_named("OPT++ Trajectory can't solve problem of type '" << pointer->type() << "'!");
     }
     MotionSolver::specifyProblem(pointer);
     prob_ = std::static_pointer_cast<UnconstrainedTimeIndexedProblem>(pointer);
@@ -216,7 +216,7 @@ void OptppTrajQNewton::Solve(Eigen::MatrixXd& solution)
     Try
     {
         std::shared_ptr<NLP1> nlf;
-        std::shared_ptr<OPTPP::OptQNewton> solver(new OPTPP::OptQNewton());
+        std::shared_ptr<OPTPP::OptQNewton> solver;
         if (parameters_.UseFiniteDifferences)
         {
             auto nlf_local = UnconstrainedTimeIndexedProblemWrapper(prob_).getFDNLF1();
@@ -257,7 +257,7 @@ void OptppTrajQNewton::Solve(Eigen::MatrixXd& solution)
 
     if (debug_)
     {
-        HIGHLIGHT_NAMED(object_name_ + " OptppTrajQNewton", "Time: " << planning_time_ << " ,Status: " << ret << " , Iterations: " << iter << " ,Feval: " << feval << " , Geval: " << geval);
+        HIGHLIGHT_NAMED(object_name_ + " OptppTrajQNewton", "Time: " << planning_time_ << ", Status: " << ret << ", Iterations: " << iter << ", Feval: " << feval << ", Geval: " << geval);
     }
 }
 
@@ -265,7 +265,7 @@ void OptppTrajFDNewton::specifyProblem(PlanningProblem_ptr pointer)
 {
     if (pointer->type() != "exotica::UnconstrainedTimeIndexedProblem")
     {
-        throw_named("OPT++ IK can't solve problem of type '" << pointer->type() << "'!");
+        throw_named("OPT++ Trajectory can't solve problem of type '" << pointer->type() << "'!");
     }
     MotionSolver::specifyProblem(pointer);
     prob_ = std::static_pointer_cast<UnconstrainedTimeIndexedProblem>(pointer);
@@ -327,7 +327,7 @@ void OptppTrajFDNewton::Solve(Eigen::MatrixXd& solution)
 
     if (debug_)
     {
-        HIGHLIGHT_NAMED(object_name_ + " OptppTrajFDNewton", "Time: " << planning_time_ << " ,Status: " << ret << " , Iterations: " << iter << " ,Feval: " << feval << " , Geval: " << geval);
+        HIGHLIGHT_NAMED(object_name_ + " OptppTrajFDNewton", "Time: " << planning_time_ << ", Status: " << ret << ", Iterations: " << iter << ", Feval: " << feval << ", Geval: " << geval);
     }
 }
 
@@ -335,7 +335,7 @@ void OptppTrajGSS::specifyProblem(PlanningProblem_ptr pointer)
 {
     if (pointer->type() != "exotica::UnconstrainedTimeIndexedProblem")
     {
-        throw_named("OPT++ IK can't solve problem of type '" << pointer->type() << "'!");
+        throw_named("OPT++ Trajectory can't solve problem of type '" << pointer->type() << "'!");
     }
     MotionSolver::specifyProblem(pointer);
     prob_ = std::static_pointer_cast<UnconstrainedTimeIndexedProblem>(pointer);
@@ -386,7 +386,7 @@ void OptppTrajGSS::Solve(Eigen::MatrixXd& solution)
 
     if (debug_)
     {
-        HIGHLIGHT_NAMED(object_name_ + " OptppTrajGSS", "Time: " << planning_time_ << " ,Status: " << ret << " , Iterations: " << iter << " ,Feval: " << feval);
+        HIGHLIGHT_NAMED(object_name_ + " OptppTrajGSS", "Time: " << planning_time_ << ", Status: " << ret << ", Iterations: " << iter << ", Feval: " << feval);
     }
 }
 }
