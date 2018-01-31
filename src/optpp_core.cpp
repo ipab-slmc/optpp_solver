@@ -86,8 +86,11 @@ void UnconstrainedEndPoseProblemWrapper::update(int mode, int n, const ColumnVec
     int iter = solver_->getIter();
     if (iter == 1) hasBeenInitialized = true;
     if (!hasBeenInitialized) iter = 0;
-    // HIGHLIGHT_NAMED("UEPPW::update", "iter: " << iter << " cost: " << fx)
-    problem_->setCostEvolution(iter, fx);
+    if (mode & NLPFunction)
+    {
+        // HIGHLIGHT_NAMED("UEPPW::update", "mode: " << mode << " iter: " << iter << " cost: " << fx << " (internal solver iter=" << solver_->getIter() << ")");
+        problem_->setCostEvolution(iter, fx);
+    }
 }
 
 void UnconstrainedEndPoseProblemWrapper::init(int n, ColumnVector& x)
@@ -174,7 +177,7 @@ void UnconstrainedTimeIndexedProblemWrapper::update(int mode, int n, const Colum
     Eigen::VectorXd x = problem_->getInitialTrajectory()[0];
 
     problem_->Update(x, 0);
-    fx = problem_->getScalarTaskCost(0);
+    if (mode & NLPFunction) fx = problem_->getScalarTaskCost(0);
 
     for (int t = 1; t < problem_->getT(); t++)
     {
@@ -204,8 +207,11 @@ void UnconstrainedTimeIndexedProblemWrapper::update(int mode, int n, const Colum
     int iter = solver_->getIter();
     if (iter == 1) hasBeenInitialized = true;
     if (!hasBeenInitialized) iter = 0;
-    // HIGHLIGHT_NAMED("UTIPW::update", "iter: " << iter << " cost: " << fx)
-    problem_->setCostEvolution(iter, fx);
+    if (mode & NLPFunction)
+    {
+        // HIGHLIGHT_NAMED("UTIPW::update", "mode: " << mode << " iter: " << iter << " cost: " << fx << " (internal solver iter=" << solver_->getIter() << ")");
+        problem_->setCostEvolution(iter, fx);
+    }
 }
 
 void UnconstrainedTimeIndexedProblemWrapper::init(int n, ColumnVector& x)
