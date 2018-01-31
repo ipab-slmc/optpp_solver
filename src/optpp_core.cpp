@@ -171,20 +171,15 @@ void UnconstrainedTimeIndexedProblemWrapper::update(int mode, int n, const Colum
 {
     if (n != n_) throw_pretty("Invalid OPT++ state size, expecting " << n_ << " got " << n);
 
-    Eigen::VectorXd x(problem_->N);
-    Eigen::VectorXd x_prev = problem_->getInitialTrajectory()[0];
+    Eigen::VectorXd x = problem_->getInitialTrajectory()[0];
 
-    Eigen::VectorXd dx;
-
-    problem_->Update(x_prev, 0);
+    problem_->Update(x, 0);
     fx = problem_->getScalarTaskCost(0);
 
     for (int t = 1; t < problem_->getT(); t++)
     {
         for (int i = 0; i < problem_->N; i++) x(i) = x_opp((t - 1) * problem_->N + i + 1);
-
         problem_->Update(x, t);
-        dx = x - x_prev;
 
         if (mode & NLPFunction)
         {
@@ -203,7 +198,6 @@ void UnconstrainedTimeIndexedProblemWrapper::update(int mode, int n, const Colum
             }
             result = NLPGradient;
         }
-        x_prev = x;
     }
 
     // Store cost
