@@ -95,6 +95,8 @@ void OptppIKLBFGS::Solve(Eigen::MatrixXd& solution)
         solver->setLineSearchTol(parameters_.LineSearchTolerance);
         solver->setStepTol(parameters_.StepTolerance);
         solver->setMaxIter(parameters_.MaxIterations);
+        solver->setFcnTol(parameters_.FunctionTolerance);
+        solver->setMinStep(parameters_.MinStep);
         ColumnVector W(prob_->N);
         for (int i = 0; i < prob_->N; i++) W(i + 1) = prob_->W(i, i);
         solver->setXScale(W);
@@ -165,6 +167,8 @@ void OptppIKCG::Solve(Eigen::MatrixXd& solution)
         solver->setLineSearchTol(parameters_.LineSearchTolerance);
         solver->setStepTol(parameters_.StepTolerance);
         solver->setMaxIter(parameters_.MaxIterations);
+        solver->setFcnTol(parameters_.FunctionTolerance);
+        solver->setMinStep(parameters_.MinStep);
         ColumnVector W(prob_->N);
         for (int i = 0; i < prob_->N; i++) W(i + 1) = prob_->W(i, i);
         solver->setXScale(W);
@@ -235,6 +239,8 @@ void OptppIKQNewton::Solve(Eigen::MatrixXd& solution)
         solver->setLineSearchTol(parameters_.LineSearchTolerance);
         solver->setStepTol(parameters_.StepTolerance);
         solver->setMaxIter(parameters_.MaxIterations);
+        solver->setFcnTol(parameters_.FunctionTolerance);
+        solver->setMinStep(parameters_.MinStep);
         ColumnVector W(prob_->N);
         for (int i = 0; i < prob_->N; i++) W(i + 1) = prob_->W(i, i);
         solver->setXScale(W);
@@ -305,6 +311,8 @@ void OptppIKFDNewton::Solve(Eigen::MatrixXd& solution)
         solver->setLineSearchTol(parameters_.LineSearchTolerance);
         solver->setStepTol(parameters_.StepTolerance);
         solver->setMaxIter(parameters_.MaxIterations);
+        solver->setFcnTol(parameters_.FunctionTolerance);
+        solver->setMinStep(parameters_.MinStep);
         ColumnVector W(prob_->N);
         for (int i = 0; i < prob_->N; i++) W(i + 1) = prob_->W(i, i);
         solver->setXScale(W);
