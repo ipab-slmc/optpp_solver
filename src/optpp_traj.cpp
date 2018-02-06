@@ -96,6 +96,8 @@ void OptppTrajLBFGS::Solve(Eigen::MatrixXd& solution)
         solver->setLineSearchTol(parameters_.LineSearchTolerance);
         solver->setStepTol(parameters_.StepTolerance);
         solver->setMaxIter(parameters_.MaxIterations);
+        solver->setFcnTol(parameters_.FunctionTolerance);
+        solver->setMinStep(parameters_.MinStep);
         solver->optimize();
         ColumnVector sol = nlf->getXc();
         for (int t = 1; t < prob_->getT(); t++)
@@ -166,6 +168,8 @@ void OptppTrajCG::Solve(Eigen::MatrixXd& solution)
         solver->setLineSearchTol(parameters_.LineSearchTolerance);
         solver->setStepTol(parameters_.StepTolerance);
         solver->setMaxIter(parameters_.MaxIterations);
+        solver->setFcnTol(parameters_.FunctionTolerance);
+        solver->setMinStep(parameters_.MinStep);
         solver->optimize();
         ColumnVector sol = nlf->getXc();
         for (int t = 1; t < prob_->getT(); t++)
@@ -236,6 +240,8 @@ void OptppTrajQNewton::Solve(Eigen::MatrixXd& solution)
         solver->setLineSearchTol(parameters_.LineSearchTolerance);
         solver->setStepTol(parameters_.StepTolerance);
         solver->setMaxIter(parameters_.MaxIterations);
+        solver->setFcnTol(parameters_.FunctionTolerance);
+        solver->setMinStep(parameters_.MinStep);
         solver->optimize();
         ColumnVector sol = nlf->getXc();
         for (int t = 1; t < prob_->getT(); t++)
@@ -306,6 +312,8 @@ void OptppTrajFDNewton::Solve(Eigen::MatrixXd& solution)
         solver->setLineSearchTol(parameters_.LineSearchTolerance);
         solver->setStepTol(parameters_.StepTolerance);
         solver->setMaxIter(parameters_.MaxIterations);
+        solver->setFcnTol(parameters_.FunctionTolerance);
+        solver->setMinStep(parameters_.MinStep);
         solver->optimize();
         ColumnVector sol = nlf->getXc();
         for (int t = 1; t < prob_->getT(); t++)
