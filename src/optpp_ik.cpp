@@ -67,7 +67,7 @@ void OptppIKLBFGS::Solve(Eigen::MatrixXd& solution)
 
     if (!prob_) throw_named("Solver has not been initialized!");
     prob_->preupdate();
-    prob_->resetCostEvolution(parameters_.MaxIterations);
+    prob_->resetCostEvolution(getNumberOfMaxIterations());
 
     solution.resize(1, prob_->N);
     int iter, feval, geval, ret;
@@ -94,7 +94,7 @@ void OptppIKLBFGS::Solve(Eigen::MatrixXd& solution)
         solver->setMaxBacktrackIter(parameters_.MaxBacktrackIterations);
         solver->setLineSearchTol(parameters_.LineSearchTolerance);
         solver->setStepTol(parameters_.StepTolerance);
-        solver->setMaxIter(parameters_.MaxIterations);
+        solver->setMaxIter(getNumberOfMaxIterations());
         solver->setFcnTol(parameters_.FunctionTolerance);
         solver->setMinStep(parameters_.MinStep);
         ColumnVector W(prob_->N);
@@ -139,7 +139,7 @@ void OptppIKCG::Solve(Eigen::MatrixXd& solution)
 
     if (!prob_) throw_named("Solver has not been initialized!");
     prob_->preupdate();
-    prob_->resetCostEvolution(parameters_.MaxIterations);
+    prob_->resetCostEvolution(getNumberOfMaxIterations());
 
     solution.resize(1, prob_->N);
     int iter, feval, geval, ret;
@@ -166,7 +166,7 @@ void OptppIKCG::Solve(Eigen::MatrixXd& solution)
         solver->setMaxBacktrackIter(parameters_.MaxBacktrackIterations);
         solver->setLineSearchTol(parameters_.LineSearchTolerance);
         solver->setStepTol(parameters_.StepTolerance);
-        solver->setMaxIter(parameters_.MaxIterations);
+        solver->setMaxIter(getNumberOfMaxIterations());
         solver->setFcnTol(parameters_.FunctionTolerance);
         solver->setMinStep(parameters_.MinStep);
         ColumnVector W(prob_->N);
@@ -211,7 +211,7 @@ void OptppIKQNewton::Solve(Eigen::MatrixXd& solution)
 
     if (!prob_) throw_named("Solver has not been initialized!");
     prob_->preupdate();
-    prob_->resetCostEvolution(parameters_.MaxIterations);
+    prob_->resetCostEvolution(getNumberOfMaxIterations());
 
     solution.resize(1, prob_->N);
     int iter, feval, geval, ret;
@@ -238,7 +238,7 @@ void OptppIKQNewton::Solve(Eigen::MatrixXd& solution)
         solver->setMaxBacktrackIter(parameters_.MaxBacktrackIterations);
         solver->setLineSearchTol(parameters_.LineSearchTolerance);
         solver->setStepTol(parameters_.StepTolerance);
-        solver->setMaxIter(parameters_.MaxIterations);
+        solver->setMaxIter(getNumberOfMaxIterations());
         solver->setFcnTol(parameters_.FunctionTolerance);
         solver->setMinStep(parameters_.MinStep);
         ColumnVector W(prob_->N);
@@ -283,7 +283,7 @@ void OptppIKFDNewton::Solve(Eigen::MatrixXd& solution)
 
     if (!prob_) throw_named("Solver has not been initialized!");
     prob_->preupdate();
-    prob_->resetCostEvolution(parameters_.MaxIterations);
+    prob_->resetCostEvolution(getNumberOfMaxIterations());
 
     solution.resize(1, prob_->N);
     int iter, feval, geval, ret;
@@ -310,7 +310,7 @@ void OptppIKFDNewton::Solve(Eigen::MatrixXd& solution)
         solver->setMaxBacktrackIter(parameters_.MaxBacktrackIterations);
         solver->setLineSearchTol(parameters_.LineSearchTolerance);
         solver->setStepTol(parameters_.StepTolerance);
-        solver->setMaxIter(parameters_.MaxIterations);
+        solver->setMaxIter(getNumberOfMaxIterations());
         solver->setFcnTol(parameters_.FunctionTolerance);
         solver->setMinStep(parameters_.MinStep);
         ColumnVector W(prob_->N);
@@ -355,7 +355,7 @@ void OptppIKGSS::Solve(Eigen::MatrixXd& solution)
 
     if (!prob_) throw_named("Solver has not been initialized!");
     prob_->preupdate();
-    prob_->resetCostEvolution(parameters_.MaxIterations);
+    prob_->resetCostEvolution(getNumberOfMaxIterations());
 
     solution.resize(1, prob_->N);
     int iter, feval, geval, ret;
@@ -372,7 +372,7 @@ void OptppIKGSS::Solve(Eigen::MatrixXd& solution)
         nlf_local->setSolver(std::static_pointer_cast<OPTPP::OptimizeClass>(solver));
 
         solver->setFullSearch(true);
-        solver->setMaxIter(parameters_.MaxIterations);
+        solver->setMaxIter(getNumberOfMaxIterations());
         ColumnVector W(prob_->N);
         for (int i = 0; i < prob_->N; i++) W(i + 1) = prob_->W(i, i);
         solver->setXScale(W);

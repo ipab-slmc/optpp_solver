@@ -56,14 +56,16 @@ class OptppIKLBFGS : public MotionSolver, public Instantiable<OptppIKLBFGSInitia
 public:
     OptppIKLBFGS() {}
     virtual ~OptppIKLBFGS() {}
-    virtual void Instantiate(OptppIKLBFGSInitializer& init) { parameters_ = init; }
+    virtual void Instantiate(OptppIKLBFGSInitializer& init)
+    {
+        parameters_ = init;
+        setNumberOfMaxIterations(parameters_.MaxIterations);
+    }
     virtual void Solve(Eigen::MatrixXd& solution);
 
     virtual void specifyProblem(PlanningProblem_ptr pointer);
 
     UnconstrainedEndPoseProblem_ptr& getProblem() { return prob_; }
-    double planning_time_;
-
 private:
     OptppIKLBFGSInitializer parameters_;
 
@@ -77,14 +79,16 @@ class OptppIKCG : public MotionSolver, public Instantiable<OptppIKCGInitializer>
 public:
     OptppIKCG() {}
     virtual ~OptppIKCG() {}
-    virtual void Instantiate(OptppIKCGInitializer& init) { parameters_ = init; }
+    virtual void Instantiate(OptppIKCGInitializer& init)
+    {
+        parameters_ = init;
+        setNumberOfMaxIterations(parameters_.MaxIterations);
+    }
     virtual void Solve(Eigen::MatrixXd& solution);
 
     virtual void specifyProblem(PlanningProblem_ptr pointer);
 
     UnconstrainedEndPoseProblem_ptr& getProblem() { return prob_; }
-    double planning_time_;
-
 private:
     OptppIKCGInitializer parameters_;
 
@@ -98,14 +102,16 @@ class OptppIKQNewton : public MotionSolver, public Instantiable<OptppIKQNewtonIn
 public:
     OptppIKQNewton() {}
     virtual ~OptppIKQNewton() {}
-    virtual void Instantiate(OptppIKQNewtonInitializer& init) { parameters_ = init; }
+    virtual void Instantiate(OptppIKQNewtonInitializer& init)
+    {
+        parameters_ = init;
+        setNumberOfMaxIterations(parameters_.MaxIterations);
+    }
     virtual void Solve(Eigen::MatrixXd& solution);
 
     virtual void specifyProblem(PlanningProblem_ptr pointer);
 
     UnconstrainedEndPoseProblem_ptr& getProblem() { return prob_; }
-    double planning_time_;
-
 private:
     OptppIKQNewtonInitializer parameters_;
 
@@ -119,14 +125,16 @@ class OptppIKFDNewton : public MotionSolver, public Instantiable<OptppIKFDNewton
 public:
     OptppIKFDNewton() {}
     virtual ~OptppIKFDNewton() {}
-    virtual void Instantiate(OptppIKFDNewtonInitializer& init) { parameters_ = init; }
+    virtual void Instantiate(OptppIKFDNewtonInitializer& init)
+    {
+        parameters_ = init;
+        setNumberOfMaxIterations(parameters_.MaxIterations);
+    }
     virtual void Solve(Eigen::MatrixXd& solution);
 
     virtual void specifyProblem(PlanningProblem_ptr pointer);
 
     UnconstrainedEndPoseProblem_ptr& getProblem() { return prob_; }
-    double planning_time_;
-
 private:
     OptppIKFDNewtonInitializer parameters_;
 
@@ -140,14 +148,16 @@ class OptppIKGSS : public MotionSolver, public Instantiable<OptppIKGSSInitialize
 public:
     OptppIKGSS() {}
     virtual ~OptppIKGSS() {}
-    virtual void Instantiate(OptppIKGSSInitializer& init) { parameters_ = init; }
+    virtual void Instantiate(OptppIKGSSInitializer& init)
+    {
+        parameters_ = init;
+        setNumberOfMaxIterations(parameters_.MaxIterations);
+    }
     virtual void Solve(Eigen::MatrixXd& solution);
 
     virtual void specifyProblem(PlanningProblem_ptr pointer);
 
     UnconstrainedEndPoseProblem_ptr& getProblem() { return prob_; }
-    double planning_time_;
-
 private:
     OptppIKGSSInitializer parameters_;
 
