@@ -56,14 +56,16 @@ class OptppTrajLBFGS : public MotionSolver, public Instantiable<OptppTrajLBFGSIn
 public:
     OptppTrajLBFGS() {}
     virtual ~OptppTrajLBFGS() {}
-    virtual void Instantiate(OptppTrajLBFGSInitializer& init) { parameters_ = init; }
+    virtual void Instantiate(OptppTrajLBFGSInitializer& init)
+    {
+        parameters_ = init;
+        setNumberOfMaxIterations(parameters_.MaxIterations);
+    }
     virtual void Solve(Eigen::MatrixXd& solution);
 
     virtual void specifyProblem(PlanningProblem_ptr pointer);
 
     UnconstrainedTimeIndexedProblem_ptr& getProblem() { return prob_; }
-    double planning_time_;
-
 private:
     OptppTrajLBFGSInitializer parameters_;
 
@@ -77,14 +79,16 @@ class OptppTrajCG : public MotionSolver, public Instantiable<OptppTrajCGInitiali
 public:
     OptppTrajCG() {}
     virtual ~OptppTrajCG() {}
-    virtual void Instantiate(OptppTrajCGInitializer& init) { parameters_ = init; }
+    virtual void Instantiate(OptppTrajCGInitializer& init)
+    {
+        parameters_ = init;
+        setNumberOfMaxIterations(parameters_.MaxIterations);
+    }
     virtual void Solve(Eigen::MatrixXd& solution);
 
     virtual void specifyProblem(PlanningProblem_ptr pointer);
 
     UnconstrainedTimeIndexedProblem_ptr& getProblem() { return prob_; }
-    double planning_time_;
-
 private:
     OptppTrajCGInitializer parameters_;
 
@@ -98,14 +102,16 @@ class OptppTrajQNewton : public MotionSolver, public Instantiable<OptppTrajQNewt
 public:
     OptppTrajQNewton() {}
     virtual ~OptppTrajQNewton() {}
-    virtual void Instantiate(OptppTrajQNewtonInitializer& init) { parameters_ = init; }
+    virtual void Instantiate(OptppTrajQNewtonInitializer& init)
+    {
+        parameters_ = init;
+        setNumberOfMaxIterations(parameters_.MaxIterations);
+    }
     virtual void Solve(Eigen::MatrixXd& solution);
 
     virtual void specifyProblem(PlanningProblem_ptr pointer);
 
     UnconstrainedTimeIndexedProblem_ptr& getProblem() { return prob_; }
-    double planning_time_;
-
 private:
     OptppTrajQNewtonInitializer parameters_;
 
@@ -119,14 +125,16 @@ class OptppTrajFDNewton : public MotionSolver, public Instantiable<OptppTrajFDNe
 public:
     OptppTrajFDNewton() {}
     virtual ~OptppTrajFDNewton() {}
-    virtual void Instantiate(OptppTrajFDNewtonInitializer& init) { parameters_ = init; }
+    virtual void Instantiate(OptppTrajFDNewtonInitializer& init)
+    {
+        parameters_ = init;
+        setNumberOfMaxIterations(parameters_.MaxIterations);
+    }
     virtual void Solve(Eigen::MatrixXd& solution);
 
     virtual void specifyProblem(PlanningProblem_ptr pointer);
 
     UnconstrainedTimeIndexedProblem_ptr& getProblem() { return prob_; }
-    double planning_time_;
-
 private:
     OptppTrajFDNewtonInitializer parameters_;
 
@@ -140,14 +148,16 @@ class OptppTrajGSS : public MotionSolver, public Instantiable<OptppTrajGSSInitia
 public:
     OptppTrajGSS() {}
     virtual ~OptppTrajGSS() {}
-    virtual void Instantiate(OptppTrajGSSInitializer& init) { parameters_ = init; }
+    virtual void Instantiate(OptppTrajGSSInitializer& init)
+    {
+        parameters_ = init;
+        setNumberOfMaxIterations(parameters_.MaxIterations);
+    }
     virtual void Solve(Eigen::MatrixXd& solution);
 
     virtual void specifyProblem(PlanningProblem_ptr pointer);
 
     UnconstrainedTimeIndexedProblem_ptr& getProblem() { return prob_; }
-    double planning_time_;
-
 private:
     OptppTrajGSSInitializer parameters_;
 

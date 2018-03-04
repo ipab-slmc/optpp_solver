@@ -67,7 +67,7 @@ void OptppTrajLBFGS::Solve(Eigen::MatrixXd& solution)
 
     if (!prob_) throw_named("Solver has not been initialized!");
     prob_->preupdate();
-    prob_->resetCostEvolution(parameters_.MaxIterations);
+    prob_->resetCostEvolution(getNumberOfMaxIterations());
 
     solution.resize(prob_->getT(), prob_->N);
     solution.row(0) = prob_->getInitialTrajectory()[0];
@@ -95,7 +95,7 @@ void OptppTrajLBFGS::Solve(Eigen::MatrixXd& solution)
         solver->setMaxBacktrackIter(parameters_.MaxBacktrackIterations);
         solver->setLineSearchTol(parameters_.LineSearchTolerance);
         solver->setStepTol(parameters_.StepTolerance);
-        solver->setMaxIter(parameters_.MaxIterations);
+        solver->setMaxIter(getNumberOfMaxIterations());
         solver->setFcnTol(parameters_.FunctionTolerance);
         solver->setMinStep(parameters_.MinStep);
         solver->optimize();
@@ -139,7 +139,7 @@ void OptppTrajCG::Solve(Eigen::MatrixXd& solution)
 
     if (!prob_) throw_named("Solver has not been initialized!");
     prob_->preupdate();
-    prob_->resetCostEvolution(parameters_.MaxIterations);
+    prob_->resetCostEvolution(getNumberOfMaxIterations());
 
     solution.resize(prob_->getT(), prob_->N);
     solution.row(0) = prob_->getInitialTrajectory()[0];
@@ -167,7 +167,7 @@ void OptppTrajCG::Solve(Eigen::MatrixXd& solution)
         solver->setMaxBacktrackIter(parameters_.MaxBacktrackIterations);
         solver->setLineSearchTol(parameters_.LineSearchTolerance);
         solver->setStepTol(parameters_.StepTolerance);
-        solver->setMaxIter(parameters_.MaxIterations);
+        solver->setMaxIter(getNumberOfMaxIterations());
         solver->setFcnTol(parameters_.FunctionTolerance);
         solver->setMinStep(parameters_.MinStep);
         solver->optimize();
@@ -211,7 +211,7 @@ void OptppTrajQNewton::Solve(Eigen::MatrixXd& solution)
 
     if (!prob_) throw_named("Solver has not been initialized!");
     prob_->preupdate();
-    prob_->resetCostEvolution(parameters_.MaxIterations + 1);
+    prob_->resetCostEvolution(getNumberOfMaxIterations() + 1);
 
     solution.resize(prob_->getT(), prob_->N);
     solution.row(0) = prob_->getInitialTrajectory()[0];
@@ -239,7 +239,7 @@ void OptppTrajQNewton::Solve(Eigen::MatrixXd& solution)
         solver->setMaxBacktrackIter(parameters_.MaxBacktrackIterations);
         solver->setLineSearchTol(parameters_.LineSearchTolerance);
         solver->setStepTol(parameters_.StepTolerance);
-        solver->setMaxIter(parameters_.MaxIterations);
+        solver->setMaxIter(getNumberOfMaxIterations());
         solver->setFcnTol(parameters_.FunctionTolerance);
         solver->setMinStep(parameters_.MinStep);
         solver->optimize();
@@ -283,7 +283,7 @@ void OptppTrajFDNewton::Solve(Eigen::MatrixXd& solution)
 
     if (!prob_) throw_named("Solver has not been initialized!");
     prob_->preupdate();
-    prob_->resetCostEvolution(parameters_.MaxIterations);
+    prob_->resetCostEvolution(getNumberOfMaxIterations());
 
     solution.resize(prob_->getT(), prob_->N);
     solution.row(0) = prob_->getInitialTrajectory()[0];
@@ -311,7 +311,7 @@ void OptppTrajFDNewton::Solve(Eigen::MatrixXd& solution)
         solver->setMaxBacktrackIter(parameters_.MaxBacktrackIterations);
         solver->setLineSearchTol(parameters_.LineSearchTolerance);
         solver->setStepTol(parameters_.StepTolerance);
-        solver->setMaxIter(parameters_.MaxIterations);
+        solver->setMaxIter(getNumberOfMaxIterations());
         solver->setFcnTol(parameters_.FunctionTolerance);
         solver->setMinStep(parameters_.MinStep);
         solver->optimize();
@@ -355,7 +355,7 @@ void OptppTrajGSS::Solve(Eigen::MatrixXd& solution)
 
     if (!prob_) throw_named("Solver has not been initialized!");
     prob_->preupdate();
-    prob_->resetCostEvolution(parameters_.MaxIterations);
+    prob_->resetCostEvolution(getNumberOfMaxIterations());
 
     solution.resize(prob_->getT(), prob_->N);
     solution.row(0) = prob_->getInitialTrajectory()[0];
@@ -373,7 +373,7 @@ void OptppTrajGSS::Solve(Eigen::MatrixXd& solution)
         nlf_local->setSolver(std::static_pointer_cast<OPTPP::OptimizeClass>(solver));
 
         solver->setFullSearch(true);
-        solver->setMaxIter(parameters_.MaxIterations);
+        solver->setMaxIter(getNumberOfMaxIterations());
         solver->optimize();
         ColumnVector sol = nlf->getXc();
         for (int t = 1; t < prob_->getT(); t++)
