@@ -1,8 +1,8 @@
 extend <exotica/MotionSolver>
 Optional bool UseFiniteDifferences = false;
-Optional double FunctionTolerance = 1e-6;
-Optional double MinStep = 1e-9;
-Optional double GradientTolerance = 1e-6;
+Optional double FunctionTolerance = 1e-4;
+Optional double MinStep = 2.2e-16;
+Optional double GradientTolerance = 0.9;
 Optional int MaxBacktrackIterations = 10;
 Optional double LineSearchTolerance = 1e-4;
 Optional int MaxIterations = 100;
