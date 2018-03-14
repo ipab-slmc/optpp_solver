@@ -67,7 +67,7 @@ void OptppTrajLBFGS::Solve(Eigen::MatrixXd& solution)
 
     if (!prob_) throw_named("Solver has not been initialized!");
     prob_->preupdate();
-    prob_->resetCostEvolution(getNumberOfMaxIterations());
+    prob_->resetCostEvolution(getNumberOfMaxIterations() + 1);
 
     solution.resize(prob_->getT(), prob_->N);
     solution.row(0) = prob_->getInitialTrajectory()[0];
@@ -139,7 +139,7 @@ void OptppTrajCG::Solve(Eigen::MatrixXd& solution)
 
     if (!prob_) throw_named("Solver has not been initialized!");
     prob_->preupdate();
-    prob_->resetCostEvolution(getNumberOfMaxIterations());
+    prob_->resetCostEvolution(getNumberOfMaxIterations() + 1);
 
     solution.resize(prob_->getT(), prob_->N);
     solution.row(0) = prob_->getInitialTrajectory()[0];
@@ -283,7 +283,7 @@ void OptppTrajFDNewton::Solve(Eigen::MatrixXd& solution)
 
     if (!prob_) throw_named("Solver has not been initialized!");
     prob_->preupdate();
-    prob_->resetCostEvolution(getNumberOfMaxIterations());
+    prob_->resetCostEvolution(getNumberOfMaxIterations() + 1);
 
     solution.resize(prob_->getT(), prob_->N);
     solution.row(0) = prob_->getInitialTrajectory()[0];
@@ -355,7 +355,7 @@ void OptppTrajGSS::Solve(Eigen::MatrixXd& solution)
 
     if (!prob_) throw_named("Solver has not been initialized!");
     prob_->preupdate();
-    prob_->resetCostEvolution(getNumberOfMaxIterations());
+    prob_->resetCostEvolution(getNumberOfMaxIterations() + 1);
 
     solution.resize(prob_->getT(), prob_->N);
     solution.row(0) = prob_->getInitialTrajectory()[0];
