@@ -80,6 +80,7 @@ public:
     std::shared_ptr<OPTPP::OptimizeClass> solver_;
 
     bool hasBeenInitialized = false;
+    bool isLBFGS = false;  // L-BFGS has bad iteration treatment, so let's distinguish based on that.
 };
 
 class NLF1WrapperUEPP : public virtual NLF1
@@ -106,6 +107,7 @@ class UnconstrainedTimeIndexedProblemWrapper
 {
 public:
     UnconstrainedTimeIndexedProblemWrapper(UnconstrainedTimeIndexedProblem_ptr problem);
+    UnconstrainedTimeIndexedProblemWrapper(UnconstrainedTimeIndexedProblem_ptr problem, bool isLBFGS);
     static void updateCallback(int mode, int n, const ColumnVector& x, double& fx, ColumnVector& gx, int& result, void* data);
     static void updateCallbackFD(int n, const ColumnVector& x, double& fx, int& result, void* data);
 
@@ -122,6 +124,7 @@ public:
     std::shared_ptr<OPTPP::OptimizeClass> solver_;
 
     bool hasBeenInitialized = false;
+    bool isLBFGS = false;  // L-BFGS has bad iteration treatment, so let's distinguish based on that.
 };
 
 class NLF1WrapperUTIP : public virtual NLF1

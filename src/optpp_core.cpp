@@ -154,6 +154,10 @@ UnconstrainedTimeIndexedProblemWrapper::UnconstrainedTimeIndexedProblemWrapper(U
 {
 }
 
+UnconstrainedTimeIndexedProblemWrapper::UnconstrainedTimeIndexedProblemWrapper(UnconstrainedTimeIndexedProblem_ptr problem, bool isLBFGS_in) : problem_(problem), n_(problem_->N * (problem_->getT() - 1)), isLBFGS(isLBFGS_in)
+{
+}
+
 void UnconstrainedTimeIndexedProblemWrapper::setSolver(std::shared_ptr<OPTPP::OptimizeClass> solver)
 {
     solver_ = solver;
@@ -208,12 +212,25 @@ void UnconstrainedTimeIndexedProblemWrapper::update(int mode, int n, const Colum
 
     // Store cost
     int iter = solver_->getIter();
-    if (iter == 1) hasBeenInitialized = true;
-    if (!hasBeenInitialized) iter = 0;
+    if (!hasBeenInitialized)
+    {
+        iter = 0;
+        hasBeenInitialized = true;
+        problem_->setCostEvolution(iter, fx);
+    }
+
+    // std::cout << "Iteration: " << iter << " - Mode: " << mode << ": " << fx << std::endl;
     if (mode & NLPFunction)
     {
-        // HIGHLIGHT_NAMED("UTIPW::update", "mode: " << mode << " iter: " << iter << " cost: " << fx << " (internal solver iter=" << solver_->getIter() << ")");
-        problem_->setCostEvolution(iter, fx);
+        if (!isLBFGS && iter > 0)
+        {
+            // HIGHLIGHT_NAMED("UTIPW::update", "mode: " << mode << " iter: " << iter << " cost: " << fx << " (internal solver iter=" << solver_->getIter() << ")");
+            problem_->setCostEvolution(iter, fx);
+        }
+        else
+        {
+            problem_->setCostEvolution(iter + 1, fx);
+        }
     }
 }
 
