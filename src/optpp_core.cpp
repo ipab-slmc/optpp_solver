@@ -175,9 +175,12 @@ void UnconstrainedTimeIndexedProblemWrapper::update(int mode, int n, const Colum
     if (n != n_) throw_pretty("Invalid OPT++ state size, expecting " << n_ << " got " << n);
 
     Eigen::VectorXd x = problem_->getInitialTrajectory()[0];
-
     problem_->Update(x, 0);
-    if (mode & NLPFunction) fx = problem_->getScalarTaskCost(0);
+
+    // Do not store initial state task cost as we are not optimising the initial configuration, cf.
+    // https://github.com/ipab-slmc/exotica/issues/297
+    // if (mode & NLPFunction) fx = problem_->getScalarTaskCost(0);
+    fx = 0;
 
     for (int t = 1; t < problem_->getT(); t++)
     {
