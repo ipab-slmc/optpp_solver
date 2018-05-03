@@ -72,11 +72,12 @@ void OptppTrajLBFGS::Solve(Eigen::MatrixXd& solution)
     solution.resize(prob_->getT(), prob_->N);
     solution.row(0) = prob_->getInitialTrajectory()[0];
     int iter, feval, geval, ret;
+    double f_sol;
 
     Try
     {
         std::shared_ptr<NLP1> nlf;
-        std::shared_ptr<OPTPP::OptLBFGS> solver(new OPTPP::OptLBFGS());
+        std::shared_ptr<OPTPP::OptLBFGS> solver = nullptr;
         if (parameters_.UseFiniteDifferences)
         {
             auto nlf_local = UnconstrainedTimeIndexedProblemWrapper(prob_).getFDNLF1();
@@ -106,6 +107,7 @@ void OptppTrajLBFGS::Solve(Eigen::MatrixXd& solution)
         iter = solver->getIter();
         feval = nlf->getFevals();
         geval = nlf->getGevals();
+        f_sol = nlf->getF();
         ret = solver->getReturnCode();
         solver->cleanup();
     }
@@ -119,7 +121,7 @@ void OptppTrajLBFGS::Solve(Eigen::MatrixXd& solution)
 
     if (debug_)
     {
-        HIGHLIGHT_NAMED(object_name_ + " OptppTrajLBFGS", "Time: " << planning_time_ << "s, Status: " << ret << ", Iterations: " << iter << ", Feval: " << feval << ", Geval: " << geval);
+        HIGHLIGHT_NAMED(object_name_ + " OptppTrajLBFGS", "Time: " << planning_time_ << "s, Status: " << ret << ", Iterations: " << iter << ", Feval: " << feval << ", Geval: " << geval << ", Final cost: " << f_sol);
     }
 }
 
