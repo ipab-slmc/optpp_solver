@@ -80,14 +80,15 @@ void OptppTrajLBFGS::Solve(Eigen::MatrixXd& solution)
         std::shared_ptr<OPTPP::OptLBFGS> solver = nullptr;
         if (parameters_.UseFiniteDifferences)
         {
-            auto nlf_local = UnconstrainedTimeIndexedProblemWrapper(prob_).getFDNLF1();
+            auto nlf_local = UnconstrainedTimeIndexedProblemWrapper(prob_, true).getFDNLF1();
             nlf = std::static_pointer_cast<NLP1>(nlf_local);
             solver.reset(new OPTPP::OptLBFGS(nlf.get()));
             nlf_local->setSolver(std::static_pointer_cast<OPTPP::OptimizeClass>(solver));
         }
         else
         {
-            auto nlf_local = UnconstrainedTimeIndexedProblemWrapper(prob_).getNLF1();
+            // L-BFGS has bad handling of iterations, this is a work-around
+            auto nlf_local = UnconstrainedTimeIndexedProblemWrapper(prob_, true).getNLF1();
             nlf = std::static_pointer_cast<NLP1>(nlf_local);
             solver.reset(new OPTPP::OptLBFGS(nlf.get()));
             nlf_local->setSolver(std::static_pointer_cast<OPTPP::OptimizeClass>(solver));
@@ -99,6 +100,8 @@ void OptppTrajLBFGS::Solve(Eigen::MatrixXd& solution)
         solver->setMaxIter(getNumberOfMaxIterations());
         solver->setFcnTol(parameters_.FunctionTolerance);
         solver->setMinStep(parameters_.MinStep);
+        // nlf->setIsExpensive(1);  // 1 uses Simple Linesearch, 0 uses Moore-Thuente
+
         solver->optimize();
         ColumnVector sol = nlf->getXc();
         for (int t = 1; t < prob_->getT(); t++)
