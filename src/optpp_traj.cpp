@@ -218,6 +218,7 @@ void OptppTrajQNewton::Solve(Eigen::MatrixXd& solution)
     solution.resize(prob_->getT(), prob_->N);
     solution.row(0) = prob_->getInitialTrajectory()[0];
     int iter, feval, geval, ret;
+    double f_sol;
 
     Try
     {
@@ -252,6 +253,7 @@ void OptppTrajQNewton::Solve(Eigen::MatrixXd& solution)
         iter = solver->getIter();
         feval = nlf->getFevals();
         geval = nlf->getGevals();
+        f_sol = nlf->getF();
         ret = solver->getReturnCode();
         solver->cleanup();
     }
@@ -265,7 +267,7 @@ void OptppTrajQNewton::Solve(Eigen::MatrixXd& solution)
 
     if (debug_)
     {
-        HIGHLIGHT_NAMED(object_name_ + " OptppTrajQNewton", "Time: " << planning_time_ << ", Status: " << ret << ", Iterations: " << iter << ", Feval: " << feval << ", Geval: " << geval);
+        HIGHLIGHT_NAMED(object_name_ + " OptppTrajQNewton", "Time: " << planning_time_ << ", Status: " << ret << ", Iterations: " << iter << ", Feval: " << feval << ", Geval: " << geval << ", Final cost: " << f_sol);
     }
 }
 
