@@ -59,7 +59,6 @@ public:
     virtual void Instantiate(OptppIKLBFGSInitializer& init)
     {
         parameters_ = init;
-        setNumberOfMaxIterations(parameters_.MaxIterations);
     }
     virtual void Solve(Eigen::MatrixXd& solution);
 
@@ -82,7 +81,6 @@ public:
     virtual void Instantiate(OptppIKCGInitializer& init)
     {
         parameters_ = init;
-        setNumberOfMaxIterations(parameters_.MaxIterations);
     }
     virtual void Solve(Eigen::MatrixXd& solution);
 
@@ -105,7 +103,6 @@ public:
     virtual void Instantiate(OptppIKQNewtonInitializer& init)
     {
         parameters_ = init;
-        setNumberOfMaxIterations(parameters_.MaxIterations);
     }
     virtual void Solve(Eigen::MatrixXd& solution);
 
@@ -128,7 +125,6 @@ public:
     virtual void Instantiate(OptppIKFDNewtonInitializer& init)
     {
         parameters_ = init;
-        setNumberOfMaxIterations(parameters_.MaxIterations);
     }
     virtual void Solve(Eigen::MatrixXd& solution);
 
@@ -151,7 +147,6 @@ public:
     virtual void Instantiate(OptppIKGSSInitializer& init)
     {
         parameters_ = init;
-        setNumberOfMaxIterations(parameters_.MaxIterations);
     }
     virtual void Solve(Eigen::MatrixXd& solution);
 
