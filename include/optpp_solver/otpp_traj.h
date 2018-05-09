@@ -59,7 +59,6 @@ public:
     virtual void Instantiate(OptppTrajLBFGSInitializer& init)
     {
         parameters_ = init;
-        setNumberOfMaxIterations(parameters_.MaxIterations);
     }
     virtual void Solve(Eigen::MatrixXd& solution);
 
@@ -82,7 +81,6 @@ public:
     virtual void Instantiate(OptppTrajCGInitializer& init)
     {
         parameters_ = init;
-        setNumberOfMaxIterations(parameters_.MaxIterations);
     }
     virtual void Solve(Eigen::MatrixXd& solution);
 
@@ -105,7 +103,6 @@ public:
     virtual void Instantiate(OptppTrajQNewtonInitializer& init)
     {
         parameters_ = init;
-        setNumberOfMaxIterations(parameters_.MaxIterations);
     }
     virtual void Solve(Eigen::MatrixXd& solution);
 
@@ -128,7 +125,6 @@ public:
     virtual void Instantiate(OptppTrajFDNewtonInitializer& init)
     {
         parameters_ = init;
-        setNumberOfMaxIterations(parameters_.MaxIterations);
     }
     virtual void Solve(Eigen::MatrixXd& solution);
 
@@ -151,7 +147,6 @@ public:
     virtual void Instantiate(OptppTrajGSSInitializer& init)
     {
         parameters_ = init;
-        setNumberOfMaxIterations(parameters_.MaxIterations);
     }
     virtual void Solve(Eigen::MatrixXd& solution);
 

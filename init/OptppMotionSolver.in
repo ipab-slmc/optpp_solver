@@ -5,5 +5,4 @@ Optional double MinStep = 2.2e-16;
 Optional double GradientTolerance = 0.9;
 Optional int MaxBacktrackIterations = 10;
 Optional double LineSearchTolerance = 1e-4;
-Optional int MaxIterations = 100;
 Optional double StepTolerance = 2.2e-16;
