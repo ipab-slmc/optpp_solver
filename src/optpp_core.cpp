@@ -217,6 +217,7 @@ void UnconstrainedTimeIndexedProblemWrapper::update(int mode, int n, const Colum
         iter = 0;
         hasBeenInitialized = true;
         problem_->setCostEvolution(iter, fx);
+        return;
     }
 
     // std::cout << "Iteration: " << iter << " - Mode: " << mode << ": " << fx << std::endl;
