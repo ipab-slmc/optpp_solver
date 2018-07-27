@@ -2,11 +2,6 @@
  *  Created on: 19 Oct 2017
  *      Author: Vladimir Ivan
  *
- *  This code is based on algorithm developed by Marc Toussaint
- *  M. Toussaint: Robot Trajectory Optimization using Approximate Inference. In Proc. of the Int. Conf. on Machine Learning (ICML 2009), 1049-1056, ACM, 2009.
- *  http://ipvs.informatik.uni-stuttgart.de/mlr/papers/09-toussaint-ICML.pdf
- *  Original code available at http://ipvs.informatik.uni-stuttgart.de/mlr/marc/source-code/index.html
- *
  * Copyright (c) 2017, University Of Edinburgh
  * All rights reserved.
  *
@@ -97,6 +92,7 @@ void OptppIKLBFGS::Solve(Eigen::MatrixXd& solution)
         solver->setMaxIter(getNumberOfMaxIterations());
         solver->setFcnTol(parameters_.FunctionTolerance);
         solver->setMinStep(parameters_.MinStep);
+        solver->setOutputFile("/tmp/OPTPP_DEFAULT.out", 0);
         ColumnVector W(prob_->N);
         for (int i = 0; i < prob_->N; i++) W(i + 1) = prob_->W(i, i);
         solver->setXScale(W);
@@ -169,6 +165,7 @@ void OptppIKCG::Solve(Eigen::MatrixXd& solution)
         solver->setMaxIter(getNumberOfMaxIterations());
         solver->setFcnTol(parameters_.FunctionTolerance);
         solver->setMinStep(parameters_.MinStep);
+        solver->setOutputFile("/tmp/OPTPP_DEFAULT.out", 0);
         ColumnVector W(prob_->N);
         for (int i = 0; i < prob_->N; i++) W(i + 1) = prob_->W(i, i);
         solver->setXScale(W);
@@ -241,6 +238,7 @@ void OptppIKQNewton::Solve(Eigen::MatrixXd& solution)
         solver->setMaxIter(getNumberOfMaxIterations());
         solver->setFcnTol(parameters_.FunctionTolerance);
         solver->setMinStep(parameters_.MinStep);
+        solver->setOutputFile("/tmp/OPTPP_DEFAULT.out", 0);
         ColumnVector W(prob_->N);
         for (int i = 0; i < prob_->N; i++) W(i + 1) = prob_->W(i, i);
         solver->setXScale(W);
@@ -313,6 +311,7 @@ void OptppIKFDNewton::Solve(Eigen::MatrixXd& solution)
         solver->setMaxIter(getNumberOfMaxIterations());
         solver->setFcnTol(parameters_.FunctionTolerance);
         solver->setMinStep(parameters_.MinStep);
+        solver->setOutputFile("/tmp/OPTPP_DEFAULT.out", 0);
         ColumnVector W(prob_->N);
         for (int i = 0; i < prob_->N; i++) W(i + 1) = prob_->W(i, i);
         solver->setXScale(W);
@@ -371,6 +370,7 @@ void OptppIKGSS::Solve(Eigen::MatrixXd& solution)
         solver.reset(new OPTPP::OptGSS(nlf.get(), &setBase));
         nlf_local->setSolver(std::static_pointer_cast<OPTPP::OptimizeClass>(solver));
 
+        solver->setOutputFile("/tmp/OPTPP_DEFAULT.out", 0);
         solver->setFullSearch(true);
         solver->setMaxIter(getNumberOfMaxIterations());
         ColumnVector W(prob_->N);

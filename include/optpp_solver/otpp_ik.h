@@ -2,11 +2,6 @@
  *  Created on: 19 Oct 2017
  *      Author: Vladimir Ivan
  *
- *  This code is based on algorithm developed by Marc Toussaint
- *  M. Toussaint: Robot Trajectory Optimization using Approximate Inference. In Proc. of the Int. Conf. on Machine Learning (ICML 2009), 1049-1056, ACM, 2009.
- *  http://ipvs.informatik.uni-stuttgart.de/mlr/papers/09-toussaint-ICML.pdf
- *  Original code available at http://ipvs.informatik.uni-stuttgart.de/mlr/marc/source-code/index.html
- *
  * Copyright (c) 2017, University Of Edinburgh
  * All rights reserved.
  *
