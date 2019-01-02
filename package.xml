@@ -13,6 +13,6 @@
   <depend>optpp_catkin</depend>
 
   <export>
-    <exotica plugin="${prefix}/exotica_plugins.xml" />
+    <exotica_core plugin="${prefix}/exotica_plugins.xml" />
   </export>
 </package>
