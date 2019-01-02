@@ -4,7 +4,7 @@ project(optpp_solver)
 add_compile_options(-std=c++11)
 
 find_package(catkin REQUIRED COMPONENTS
-  exotica
+  exotica_core
   optpp_catkin
 )
 
@@ -26,7 +26,7 @@ GenInitializers()
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES optpp_core
-  CATKIN_DEPENDS exotica optpp_catkin
+  CATKIN_DEPENDS exotica_core optpp_catkin
 )
 
 include_directories(

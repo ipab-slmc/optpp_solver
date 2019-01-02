@@ -1,4 +1,4 @@
-extend <exotica/MotionSolver>
+extend <exotica_core/MotionSolver>
 Optional bool UseFiniteDifferences = false;
 Optional double FunctionTolerance = 1e-4;
 Optional double MinStep = 2.2e-16;

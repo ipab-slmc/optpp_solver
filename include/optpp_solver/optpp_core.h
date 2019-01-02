@@ -36,8 +36,8 @@
 
 #include <memory>
 
-#include <exotica/Problems/UnconstrainedEndPoseProblem.h>
-#include <exotica/Problems/UnconstrainedTimeIndexedProblem.h>
+#include <exotica_core/problems/unconstrained_end_pose_problem.h>
+#include <exotica_core/problems/unconstrained_time_indexed_problem.h>
 #include <optpp_catkin/NLF.h>
 #include <optpp_catkin/NLP.h>
 #include <optpp_catkin/Opt.h>
