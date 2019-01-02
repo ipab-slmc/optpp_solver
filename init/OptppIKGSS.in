@@ -1,2 +1,2 @@
-extend <exotica/MotionSolver>
+extend <exotica_core/MotionSolver>
 Optional int MaxIterations = 100;

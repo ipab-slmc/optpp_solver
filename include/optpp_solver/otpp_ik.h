@@ -34,8 +34,8 @@
 #ifndef OPTPPIK_H
 #define OPTPPIK_H
 
-#include <exotica/Exotica.h>
-#include <exotica/Problems/UnconstrainedEndPoseProblem.h>
+#include <exotica_core/exotica_core.h>
+#include <exotica_core/problems/unconstrained_end_pose_problem.h>
 #include <optpp_solver/OptppIKCGInitializer.h>
 #include <optpp_solver/OptppIKFDNewtonInitializer.h>
 #include <optpp_solver/OptppIKGSSInitializer.h>

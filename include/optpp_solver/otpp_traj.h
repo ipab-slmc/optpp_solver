@@ -34,8 +34,8 @@
 #ifndef OPTPPTRAJ_H
 #define OPTPPTRAJ_H
 
-#include <exotica/Exotica.h>
-#include <exotica/Problems/UnconstrainedTimeIndexedProblem.h>
+#include <exotica_core/exotica_core.h>
+#include <exotica_core/problems/unconstrained_time_indexed_problem.h>
 #include <optpp_solver/OptppTrajCGInitializer.h>
 #include <optpp_solver/OptppTrajFDNewtonInitializer.h>
 #include <optpp_solver/OptppTrajGSSInitializer.h>
