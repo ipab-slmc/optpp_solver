@@ -1,44 +1,40 @@
-/*
- *  Created on: 19 Oct 2017
- *      Author: Vladimir Ivan
- *
- * Copyright (c) 2017, University Of Edinburgh
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *  * Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- *  * Neither the name of  nor the names of its contributors may be used to
- *    endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
- *
- */
+//
+// Copyright (c) 2018, University of Edinburgh
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are met:
+//
+//  * Redistributions of source code must retain the above copyright notice,
+//    this list of conditions and the following disclaimer.
+//  * Redistributions in binary form must reproduce the above copyright
+//    notice, this list of conditions and the following disclaimer in the
+//    documentation and/or other materials provided with the distribution.
+//  * Neither the name of  nor the names of its contributors may be used to
+//    endorse or promote products derived from this software without specific
+//    prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+// ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+// LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+// CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+// SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+// CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+// POSSIBILITY OF SUCH DAMAGE.
+//
 
 #include <optpp_solver/optpp_core.h>
 #include <Eigen/Dense>
 
 namespace exotica
 {
-UnconstrainedEndPoseProblemWrapper::UnconstrainedEndPoseProblemWrapper(UnconstrainedEndPoseProblem_ptr problem) : problem_(problem), n_(problem_->N)
+UnconstrainedEndPoseProblemWrapper::UnconstrainedEndPoseProblemWrapper(UnconstrainedEndPoseProblemPtr problem) : problem_(problem), n_(problem_->N)
 {
-    if (problem_->getNominalPose().rows() > 0) throw_pretty("OPT++ solvers don't support null-space optimization! " << problem_->getNominalPose().rows());
+    if (problem_->GetNominalPose().rows() > 0) ThrowPretty("OPT++ solvers don't support null-space optimization! " << problem_->GetNominalPose().rows());
 }
 
 void UnconstrainedEndPoseProblemWrapper::setSolver(std::shared_ptr<OPTPP::OptimizeClass> solver)
@@ -59,20 +55,20 @@ void UnconstrainedEndPoseProblemWrapper::updateCallbackFD(int n, const ColumnVec
 
 void UnconstrainedEndPoseProblemWrapper::update(int mode, int n, const ColumnVector& x_opp, double& fx, ColumnVector& gx, int& result)
 {
-    if (n != n_) throw_pretty("Invalid OPT++ state size, expecting " << n_ << " got " << n);
+    if (n != n_) ThrowPretty("Invalid OPT++ state size, expecting " << n_ << " got " << n);
     Eigen::VectorXd x(n);
     for (int i = 0; i < n; i++) x(i) = x_opp(i + 1);
     problem_->Update(x);
 
     if (mode & NLPFunction)
     {
-        fx = problem_->getScalarCost();
+        fx = problem_->GetScalarCost();
         result = NLPFunction;
     }
 
     if (mode & NLPGradient)
     {
-        Eigen::VectorXd J = problem_->getScalarJacobian();
+        Eigen::VectorXd J = problem_->GetScalarJacobian();
         for (int i = 0; i < n; i++) gx(i + 1) = J(i);
         result = NLPGradient;
     }
@@ -84,14 +80,14 @@ void UnconstrainedEndPoseProblemWrapper::update(int mode, int n, const ColumnVec
     if (mode & NLPFunction)
     {
         // HIGHLIGHT_NAMED("UEPPW::update", "mode: " << mode << " iter: " << iter << " cost: " << fx << " (internal solver iter=" << solver_->getIter() << ")");
-        problem_->setCostEvolution(iter, fx);
+        problem_->SetCostEvolution(iter, fx);
     }
 }
 
 void UnconstrainedEndPoseProblemWrapper::init(int n, ColumnVector& x)
 {
-    if (n != n_) throw_pretty("Invalid OPT++ state size, expecting " << n_ << " got " << n);
-    Eigen::VectorXd x0 = problem_->applyStartState();
+    if (n != n_) ThrowPretty("Invalid OPT++ state size, expecting " << n_ << " got " << n);
+    Eigen::VectorXd x0 = problem_->ApplyStartState();
     x.ReSize(n);
     for (int i = 0; i < n; i++) x(i + 1) = x0(i);
     hasBeenInitialized = false;
@@ -145,11 +141,11 @@ void FDNLF1WrapperUEPP::initFcn()
     }
 }
 
-UnconstrainedTimeIndexedProblemWrapper::UnconstrainedTimeIndexedProblemWrapper(UnconstrainedTimeIndexedProblem_ptr problem) : problem_(problem), n_(problem_->N * (problem_->getT() - 1))
+UnconstrainedTimeIndexedProblemWrapper::UnconstrainedTimeIndexedProblemWrapper(UnconstrainedTimeIndexedProblemPtr problem) : problem_(problem), n_(problem_->N * (problem_->GetT() - 1))
 {
 }
 
-UnconstrainedTimeIndexedProblemWrapper::UnconstrainedTimeIndexedProblemWrapper(UnconstrainedTimeIndexedProblem_ptr problem, bool isLBFGS_in) : problem_(problem), n_(problem_->N * (problem_->getT() - 1)), isLBFGS(isLBFGS_in)
+UnconstrainedTimeIndexedProblemWrapper::UnconstrainedTimeIndexedProblemWrapper(UnconstrainedTimeIndexedProblemPtr problem, bool isLBFGS_in) : problem_(problem), n_(problem_->N * (problem_->GetT() - 1)), isLBFGS(isLBFGS_in)
 {
 }
 
@@ -171,31 +167,31 @@ void UnconstrainedTimeIndexedProblemWrapper::updateCallbackFD(int n, const Colum
 
 void UnconstrainedTimeIndexedProblemWrapper::update(int mode, int n, const ColumnVector& x_opp, double& fx, ColumnVector& gx, int& result)
 {
-    if (n != n_) throw_pretty("Invalid OPT++ state size, expecting " << n_ << " got " << n);
+    if (n != n_) ThrowPretty("Invalid OPT++ state size, expecting " << n_ << " got " << n);
 
-    Eigen::VectorXd x = problem_->getInitialTrajectory()[0];
+    Eigen::VectorXd x = problem_->GetInitialTrajectory()[0];
     problem_->Update(x, 0);
 
     // Do not store initial state task cost as we are not optimising the initial configuration, cf.
     // https://github.com/ipab-slmc/exotica/issues/297
-    // if (mode & NLPFunction) fx = problem_->getScalarTaskCost(0);
+    // if (mode & NLPFunction) fx = problem_->GetScalarTaskCost(0);
     fx = 0;
 
-    for (int t = 1; t < problem_->getT(); t++)
+    for (int t = 1; t < problem_->GetT(); t++)
     {
         for (int i = 0; i < problem_->N; i++) x(i) = x_opp((t - 1) * problem_->N + i + 1);
         problem_->Update(x, t);
 
         if (mode & NLPFunction)
         {
-            fx += problem_->getScalarTaskCost(t) + problem_->getScalarTransitionCost(t);
+            fx += problem_->GetScalarTaskCost(t) + problem_->GetScalarTransitionCost(t);
             result = NLPFunction;
         }
 
         if (mode & NLPGradient)
         {
-            Eigen::VectorXd J_control = problem_->getScalarTransitionJacobian(t);
-            Eigen::VectorXd J = problem_->getScalarTaskJacobian(t) + J_control;
+            Eigen::VectorXd J_control = problem_->GetScalarTransitionJacobian(t);
+            Eigen::VectorXd J = problem_->GetScalarTaskJacobian(t) + J_control;
             for (int i = 0; i < problem_->N; i++) gx((t - 1) * problem_->N + i + 1) = J(i);
             if (t > 1)
             {
@@ -211,7 +207,7 @@ void UnconstrainedTimeIndexedProblemWrapper::update(int mode, int n, const Colum
     {
         iter = 0;
         hasBeenInitialized = true;
-        problem_->setCostEvolution(iter, fx);
+        problem_->SetCostEvolution(iter, fx);
         return;
     }
 
@@ -221,21 +217,21 @@ void UnconstrainedTimeIndexedProblemWrapper::update(int mode, int n, const Colum
         if (!isLBFGS && iter > 0)
         {
             // HIGHLIGHT_NAMED("UTIPW::update", "mode: " << mode << " iter: " << iter << " cost: " << fx << " (internal solver iter=" << solver_->getIter() << ")");
-            problem_->setCostEvolution(iter, fx);
+            problem_->SetCostEvolution(iter, fx);
         }
         else
         {
-            problem_->setCostEvolution(iter + 1, fx);
+            problem_->SetCostEvolution(iter + 1, fx);
         }
     }
 }
 
 void UnconstrainedTimeIndexedProblemWrapper::init(int n, ColumnVector& x)
 {
-    if (n != n_) throw_pretty("Invalid OPT++ state size, expecting " << n_ << " got " << n);
-    const std::vector<Eigen::VectorXd>& init = problem_->getInitialTrajectory();
+    if (n != n_) ThrowPretty("Invalid OPT++ state size, expecting " << n_ << " got " << n);
+    const std::vector<Eigen::VectorXd>& init = problem_->GetInitialTrajectory();
     x.ReSize(n);
-    for (int t = 1; t < problem_->getT(); t++)
+    for (int t = 1; t < problem_->GetT(); t++)
         for (int i = 0; i < problem_->N; i++)
             x((t - 1) * problem_->N + i + 1) = init[t](i);
     hasBeenInitialized = false;

@@ -1,1 +1,3 @@
+class OptppIKFDNewton
+
 extend <optpp_solver/OptppMotionSolver>
