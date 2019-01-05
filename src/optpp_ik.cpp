@@ -1,35 +1,31 @@
-/*
- *  Created on: 19 Oct 2017
- *      Author: Vladimir Ivan
- *
- * Copyright (c) 2017, University Of Edinburgh
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *  * Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- *  * Neither the name of  nor the names of its contributors may be used to
- *    endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
- *
- */
+//
+// Copyright (c) 2018, University of Edinburgh
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are met:
+//
+//  * Redistributions of source code must retain the above copyright notice,
+//    this list of conditions and the following disclaimer.
+//  * Redistributions in binary form must reproduce the above copyright
+//    notice, this list of conditions and the following disclaimer in the
+//    documentation and/or other materials provided with the distribution.
+//  * Neither the name of  nor the names of its contributors may be used to
+//    endorse or promote products derived from this software without specific
+//    prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+// ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+// LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+// CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+// SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+// CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+// POSSIBILITY OF SUCH DAMAGE.
+//
 
 #include <optpp_catkin/OptCG.h>
 #include <optpp_catkin/OptFDNewton.h>
@@ -46,13 +42,13 @@ REGISTER_MOTIONSOLVER_TYPE("OptppIKGSS", exotica::OptppIKGSS)
 
 namespace exotica
 {
-void OptppIKLBFGS::specifyProblem(PlanningProblem_ptr pointer)
+void OptppIKLBFGS::SpecifyProblem(PlanningProblemPtr pointer)
 {
     if (pointer->type() != "exotica::UnconstrainedEndPoseProblem")
     {
-        throw_named("OPT++ IK can't solve problem of type '" << pointer->type() << "'!");
+        ThrowNamed("OPT++ IK can't solve problem of type '" << pointer->type() << "'!");
     }
-    MotionSolver::specifyProblem(pointer);
+    MotionSolver::SpecifyProblem(pointer);
     prob_ = std::static_pointer_cast<UnconstrainedEndPoseProblem>(pointer);
 }
 
@@ -60,9 +56,9 @@ void OptppIKLBFGS::Solve(Eigen::MatrixXd& solution)
 {
     Timer timer;
 
-    if (!prob_) throw_named("Solver has not been initialized!");
-    prob_->preupdate();
-    prob_->resetCostEvolution(getNumberOfMaxIterations() + 1);
+    if (!prob_) ThrowNamed("Solver has not been initialized!");
+    prob_->PreUpdate();
+    prob_->ResetCostEvolution(GetNumberOfMaxIterations() + 1);
 
     solution.resize(1, prob_->N);
     int iter, feval, geval, ret;
@@ -89,7 +85,7 @@ void OptppIKLBFGS::Solve(Eigen::MatrixXd& solution)
         solver->setMaxBacktrackIter(parameters_.MaxBacktrackIterations);
         solver->setLineSearchTol(parameters_.LineSearchTolerance);
         solver->setStepTol(parameters_.StepTolerance);
-        solver->setMaxIter(getNumberOfMaxIterations());
+        solver->setMaxIter(GetNumberOfMaxIterations());
         solver->setFcnTol(parameters_.FunctionTolerance);
         solver->setMinStep(parameters_.MinStep);
         solver->setOutputFile("/tmp/OPTPP_DEFAULT.out", 0);
@@ -108,10 +104,10 @@ void OptppIKLBFGS::Solve(Eigen::MatrixXd& solution)
     CatchAll
     {
         Tracer::last->PrintTrace();
-        throw_pretty("OPT++ exception:" << BaseException::what());
+        ThrowPretty("OPT++ exception:" << BaseException::what());
     }
 
-    planning_time_ = timer.getDuration();
+    planning_time_ = timer.GetDuration();
 
     if (debug_)
     {
@@ -119,13 +115,13 @@ void OptppIKLBFGS::Solve(Eigen::MatrixXd& solution)
     }
 }
 
-void OptppIKCG::specifyProblem(PlanningProblem_ptr pointer)
+void OptppIKCG::SpecifyProblem(PlanningProblemPtr pointer)
 {
     if (pointer->type() != "exotica::UnconstrainedEndPoseProblem")
     {
-        throw_named("OPT++ IK can't solve problem of type '" << pointer->type() << "'!");
+        ThrowNamed("OPT++ IK can't solve problem of type '" << pointer->type() << "'!");
     }
-    MotionSolver::specifyProblem(pointer);
+    MotionSolver::SpecifyProblem(pointer);
     prob_ = std::static_pointer_cast<UnconstrainedEndPoseProblem>(pointer);
 }
 
@@ -133,9 +129,9 @@ void OptppIKCG::Solve(Eigen::MatrixXd& solution)
 {
     Timer timer;
 
-    if (!prob_) throw_named("Solver has not been initialized!");
-    prob_->preupdate();
-    prob_->resetCostEvolution(getNumberOfMaxIterations() + 1);
+    if (!prob_) ThrowNamed("Solver has not been initialized!");
+    prob_->PreUpdate();
+    prob_->ResetCostEvolution(GetNumberOfMaxIterations() + 1);
 
     solution.resize(1, prob_->N);
     int iter, feval, geval, ret;
@@ -162,7 +158,7 @@ void OptppIKCG::Solve(Eigen::MatrixXd& solution)
         solver->setMaxBacktrackIter(parameters_.MaxBacktrackIterations);
         solver->setLineSearchTol(parameters_.LineSearchTolerance);
         solver->setStepTol(parameters_.StepTolerance);
-        solver->setMaxIter(getNumberOfMaxIterations());
+        solver->setMaxIter(GetNumberOfMaxIterations());
         solver->setFcnTol(parameters_.FunctionTolerance);
         solver->setMinStep(parameters_.MinStep);
         solver->setOutputFile("/tmp/OPTPP_DEFAULT.out", 0);
@@ -181,10 +177,10 @@ void OptppIKCG::Solve(Eigen::MatrixXd& solution)
     CatchAll
     {
         Tracer::last->PrintTrace();
-        throw_pretty("OPT++ exception:" << BaseException::what());
+        ThrowPretty("OPT++ exception:" << BaseException::what());
     }
 
-    planning_time_ = timer.getDuration();
+    planning_time_ = timer.GetDuration();
 
     if (debug_)
     {
@@ -192,13 +188,13 @@ void OptppIKCG::Solve(Eigen::MatrixXd& solution)
     }
 }
 
-void OptppIKQNewton::specifyProblem(PlanningProblem_ptr pointer)
+void OptppIKQNewton::SpecifyProblem(PlanningProblemPtr pointer)
 {
     if (pointer->type() != "exotica::UnconstrainedEndPoseProblem")
     {
-        throw_named("OPT++ IK can't solve problem of type '" << pointer->type() << "'!");
+        ThrowNamed("OPT++ IK can't solve problem of type '" << pointer->type() << "'!");
     }
-    MotionSolver::specifyProblem(pointer);
+    MotionSolver::SpecifyProblem(pointer);
     prob_ = std::static_pointer_cast<UnconstrainedEndPoseProblem>(pointer);
 }
 
@@ -206,9 +202,9 @@ void OptppIKQNewton::Solve(Eigen::MatrixXd& solution)
 {
     Timer timer;
 
-    if (!prob_) throw_named("Solver has not been initialized!");
-    prob_->preupdate();
-    prob_->resetCostEvolution(getNumberOfMaxIterations() + 1);
+    if (!prob_) ThrowNamed("Solver has not been initialized!");
+    prob_->PreUpdate();
+    prob_->ResetCostEvolution(GetNumberOfMaxIterations() + 1);
 
     solution.resize(1, prob_->N);
     int iter, feval, geval, ret;
@@ -235,7 +231,7 @@ void OptppIKQNewton::Solve(Eigen::MatrixXd& solution)
         solver->setMaxBacktrackIter(parameters_.MaxBacktrackIterations);
         solver->setLineSearchTol(parameters_.LineSearchTolerance);
         solver->setStepTol(parameters_.StepTolerance);
-        solver->setMaxIter(getNumberOfMaxIterations());
+        solver->setMaxIter(GetNumberOfMaxIterations());
         solver->setFcnTol(parameters_.FunctionTolerance);
         solver->setMinStep(parameters_.MinStep);
         solver->setOutputFile("/tmp/OPTPP_DEFAULT.out", 0);
@@ -254,10 +250,10 @@ void OptppIKQNewton::Solve(Eigen::MatrixXd& solution)
     CatchAll
     {
         Tracer::last->PrintTrace();
-        throw_pretty("OPT++ exception:" << BaseException::what());
+        ThrowPretty("OPT++ exception:" << BaseException::what());
     }
 
-    planning_time_ = timer.getDuration();
+    planning_time_ = timer.GetDuration();
 
     if (debug_)
     {
@@ -265,13 +261,13 @@ void OptppIKQNewton::Solve(Eigen::MatrixXd& solution)
     }
 }
 
-void OptppIKFDNewton::specifyProblem(PlanningProblem_ptr pointer)
+void OptppIKFDNewton::SpecifyProblem(PlanningProblemPtr pointer)
 {
     if (pointer->type() != "exotica::UnconstrainedEndPoseProblem")
     {
-        throw_named("OPT++ IK can't solve problem of type '" << pointer->type() << "'!");
+        ThrowNamed("OPT++ IK can't solve problem of type '" << pointer->type() << "'!");
     }
-    MotionSolver::specifyProblem(pointer);
+    MotionSolver::SpecifyProblem(pointer);
     prob_ = std::static_pointer_cast<UnconstrainedEndPoseProblem>(pointer);
 }
 
@@ -279,9 +275,9 @@ void OptppIKFDNewton::Solve(Eigen::MatrixXd& solution)
 {
     Timer timer;
 
-    if (!prob_) throw_named("Solver has not been initialized!");
-    prob_->preupdate();
-    prob_->resetCostEvolution(getNumberOfMaxIterations() + 1);
+    if (!prob_) ThrowNamed("Solver has not been initialized!");
+    prob_->PreUpdate();
+    prob_->ResetCostEvolution(GetNumberOfMaxIterations() + 1);
 
     solution.resize(1, prob_->N);
     int iter, feval, geval, ret;
@@ -308,7 +304,7 @@ void OptppIKFDNewton::Solve(Eigen::MatrixXd& solution)
         solver->setMaxBacktrackIter(parameters_.MaxBacktrackIterations);
         solver->setLineSearchTol(parameters_.LineSearchTolerance);
         solver->setStepTol(parameters_.StepTolerance);
-        solver->setMaxIter(getNumberOfMaxIterations());
+        solver->setMaxIter(GetNumberOfMaxIterations());
         solver->setFcnTol(parameters_.FunctionTolerance);
         solver->setMinStep(parameters_.MinStep);
         solver->setOutputFile("/tmp/OPTPP_DEFAULT.out", 0);
@@ -327,10 +323,10 @@ void OptppIKFDNewton::Solve(Eigen::MatrixXd& solution)
     CatchAll
     {
         Tracer::last->PrintTrace();
-        throw_pretty("OPT++ exception:" << BaseException::what());
+        ThrowPretty("OPT++ exception:" << BaseException::what());
     }
 
-    planning_time_ = timer.getDuration();
+    planning_time_ = timer.GetDuration();
 
     if (debug_)
     {
@@ -338,13 +334,13 @@ void OptppIKFDNewton::Solve(Eigen::MatrixXd& solution)
     }
 }
 
-void OptppIKGSS::specifyProblem(PlanningProblem_ptr pointer)
+void OptppIKGSS::SpecifyProblem(PlanningProblemPtr pointer)
 {
     if (pointer->type() != "exotica::UnconstrainedEndPoseProblem")
     {
-        throw_named("OPT++ IK can't solve problem of type '" << pointer->type() << "'!");
+        ThrowNamed("OPT++ IK can't solve problem of type '" << pointer->type() << "'!");
     }
-    MotionSolver::specifyProblem(pointer);
+    MotionSolver::SpecifyProblem(pointer);
     prob_ = std::static_pointer_cast<UnconstrainedEndPoseProblem>(pointer);
 }
 
@@ -352,9 +348,9 @@ void OptppIKGSS::Solve(Eigen::MatrixXd& solution)
 {
     Timer timer;
 
-    if (!prob_) throw_named("Solver has not been initialized!");
-    prob_->preupdate();
-    prob_->resetCostEvolution(getNumberOfMaxIterations() + 1);
+    if (!prob_) ThrowNamed("Solver has not been initialized!");
+    prob_->PreUpdate();
+    prob_->ResetCostEvolution(GetNumberOfMaxIterations() + 1);
 
     solution.resize(1, prob_->N);
     int iter, feval, geval, ret;
@@ -372,7 +368,7 @@ void OptppIKGSS::Solve(Eigen::MatrixXd& solution)
 
         solver->setOutputFile("/tmp/OPTPP_DEFAULT.out", 0);
         solver->setFullSearch(true);
-        solver->setMaxIter(getNumberOfMaxIterations());
+        solver->setMaxIter(GetNumberOfMaxIterations());
         ColumnVector W(prob_->N);
         for (int i = 0; i < prob_->N; i++) W(i + 1) = prob_->W(i, i);
         solver->setXScale(W);
@@ -387,10 +383,10 @@ void OptppIKGSS::Solve(Eigen::MatrixXd& solution)
     CatchAll
     {
         Tracer::last->PrintTrace();
-        throw_pretty("OPT++ exception:" << BaseException::what());
+        ThrowPretty("OPT++ exception:" << BaseException::what());
     }
 
-    planning_time_ = timer.getDuration();
+    planning_time_ = timer.GetDuration();
 
     if (debug_)
     {

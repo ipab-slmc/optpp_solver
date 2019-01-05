@@ -1,1 +1,3 @@
+class OptppTrajLBFGS
+
 extend <optpp_solver/OptppMotionSolver>

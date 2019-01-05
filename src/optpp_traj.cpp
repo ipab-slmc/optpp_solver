@@ -1,35 +1,31 @@
-/*
- *  Created on: 19 Oct 2017
- *      Author: Vladimir Ivan
- *
- * Copyright (c) 2017, University Of Edinburgh
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *  * Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- *  * Neither the name of  nor the names of its contributors may be used to
- *    endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
- *
- */
+//
+// Copyright (c) 2018, University of Edinburgh
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are met:
+//
+//  * Redistributions of source code must retain the above copyright notice,
+//    this list of conditions and the following disclaimer.
+//  * Redistributions in binary form must reproduce the above copyright
+//    notice, this list of conditions and the following disclaimer in the
+//    documentation and/or other materials provided with the distribution.
+//  * Neither the name of  nor the names of its contributors may be used to
+//    endorse or promote products derived from this software without specific
+//    prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+// ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+// LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+// CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+// SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+// CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+// POSSIBILITY OF SUCH DAMAGE.
+//
 
 #include <optpp_catkin/OptCG.h>
 #include <optpp_catkin/OptFDNewton.h>
@@ -46,13 +42,13 @@ REGISTER_MOTIONSOLVER_TYPE("OptppTrajGSS", exotica::OptppTrajGSS)
 
 namespace exotica
 {
-void OptppTrajLBFGS::specifyProblem(PlanningProblem_ptr pointer)
+void OptppTrajLBFGS::SpecifyProblem(PlanningProblemPtr pointer)
 {
     if (pointer->type() != "exotica::UnconstrainedTimeIndexedProblem")
     {
-        throw_named("OPT++ Trajectory can't solve problem of type '" << pointer->type() << "'!");
+        ThrowNamed("OPT++ Trajectory can't solve problem of type '" << pointer->type() << "'!");
     }
-    MotionSolver::specifyProblem(pointer);
+    MotionSolver::SpecifyProblem(pointer);
     prob_ = std::static_pointer_cast<UnconstrainedTimeIndexedProblem>(pointer);
 }
 
@@ -60,12 +56,12 @@ void OptppTrajLBFGS::Solve(Eigen::MatrixXd& solution)
 {
     Timer timer;
 
-    if (!prob_) throw_named("Solver has not been initialized!");
-    prob_->preupdate();
-    prob_->resetCostEvolution(getNumberOfMaxIterations() + 1);
+    if (!prob_) ThrowNamed("Solver has not been initialized!");
+    prob_->PreUpdate();
+    prob_->ResetCostEvolution(GetNumberOfMaxIterations() + 1);
 
-    solution.resize(prob_->getT(), prob_->N);
-    solution.row(0) = prob_->getInitialTrajectory()[0];
+    solution.resize(prob_->GetT(), prob_->N);
+    solution.row(0) = prob_->GetInitialTrajectory()[0];
     int iter, feval, geval, ret;
     double f_sol;
 
@@ -92,7 +88,7 @@ void OptppTrajLBFGS::Solve(Eigen::MatrixXd& solution)
         solver->setMaxBacktrackIter(parameters_.MaxBacktrackIterations);
         solver->setLineSearchTol(parameters_.LineSearchTolerance);
         solver->setStepTol(parameters_.StepTolerance);
-        solver->setMaxIter(getNumberOfMaxIterations());
+        solver->setMaxIter(GetNumberOfMaxIterations());
         solver->setFcnTol(parameters_.FunctionTolerance);
         solver->setMinStep(parameters_.MinStep);
         solver->setOutputFile("/tmp/OPTPP_DEFAULT.out", 0);
@@ -100,7 +96,7 @@ void OptppTrajLBFGS::Solve(Eigen::MatrixXd& solution)
 
         solver->optimize();
         ColumnVector sol = nlf->getXc();
-        for (int t = 1; t < prob_->getT(); t++)
+        for (int t = 1; t < prob_->GetT(); t++)
             for (int i = 0; i < prob_->N; i++)
                 solution(t, i) = sol((t - 1) * prob_->N + i + 1);
         iter = solver->getIter();
@@ -113,10 +109,10 @@ void OptppTrajLBFGS::Solve(Eigen::MatrixXd& solution)
     CatchAll
     {
         Tracer::last->PrintTrace();
-        throw_pretty("OPT++ exception:" << BaseException::what());
+        ThrowPretty("OPT++ exception:" << BaseException::what());
     }
 
-    planning_time_ = timer.getDuration();
+    planning_time_ = timer.GetDuration();
 
     if (debug_)
     {
@@ -124,13 +120,13 @@ void OptppTrajLBFGS::Solve(Eigen::MatrixXd& solution)
     }
 }
 
-void OptppTrajCG::specifyProblem(PlanningProblem_ptr pointer)
+void OptppTrajCG::SpecifyProblem(PlanningProblemPtr pointer)
 {
     if (pointer->type() != "exotica::UnconstrainedTimeIndexedProblem")
     {
-        throw_named("OPT++ Trajectory can't solve problem of type '" << pointer->type() << "'!");
+        ThrowNamed("OPT++ Trajectory can't solve problem of type '" << pointer->type() << "'!");
     }
-    MotionSolver::specifyProblem(pointer);
+    MotionSolver::SpecifyProblem(pointer);
     prob_ = std::static_pointer_cast<UnconstrainedTimeIndexedProblem>(pointer);
 }
 
@@ -138,12 +134,12 @@ void OptppTrajCG::Solve(Eigen::MatrixXd& solution)
 {
     Timer timer;
 
-    if (!prob_) throw_named("Solver has not been initialized!");
-    prob_->preupdate();
-    prob_->resetCostEvolution(getNumberOfMaxIterations() + 1);
+    if (!prob_) ThrowNamed("Solver has not been initialized!");
+    prob_->PreUpdate();
+    prob_->ResetCostEvolution(GetNumberOfMaxIterations() + 1);
 
-    solution.resize(prob_->getT(), prob_->N);
-    solution.row(0) = prob_->getInitialTrajectory()[0];
+    solution.resize(prob_->GetT(), prob_->N);
+    solution.row(0) = prob_->GetInitialTrajectory()[0];
     int iter, feval, geval, ret;
 
     Try
@@ -168,13 +164,13 @@ void OptppTrajCG::Solve(Eigen::MatrixXd& solution)
         solver->setMaxBacktrackIter(parameters_.MaxBacktrackIterations);
         solver->setLineSearchTol(parameters_.LineSearchTolerance);
         solver->setStepTol(parameters_.StepTolerance);
-        solver->setMaxIter(getNumberOfMaxIterations());
+        solver->setMaxIter(GetNumberOfMaxIterations());
         solver->setFcnTol(parameters_.FunctionTolerance);
         solver->setMinStep(parameters_.MinStep);
         solver->setOutputFile("/tmp/OPTPP_DEFAULT.out", 0);
         solver->optimize();
         ColumnVector sol = nlf->getXc();
-        for (int t = 1; t < prob_->getT(); t++)
+        for (int t = 1; t < prob_->GetT(); t++)
             for (int i = 0; i < prob_->N; i++)
                 solution(t, i) = sol((t - 1) * prob_->N + i + 1);
         iter = solver->getIter();
@@ -186,10 +182,10 @@ void OptppTrajCG::Solve(Eigen::MatrixXd& solution)
     CatchAll
     {
         Tracer::last->PrintTrace();
-        throw_pretty("OPT++ exception:" << BaseException::what());
+        ThrowPretty("OPT++ exception:" << BaseException::what());
     }
 
-    planning_time_ = timer.getDuration();
+    planning_time_ = timer.GetDuration();
 
     if (debug_)
     {
@@ -197,13 +193,13 @@ void OptppTrajCG::Solve(Eigen::MatrixXd& solution)
     }
 }
 
-void OptppTrajQNewton::specifyProblem(PlanningProblem_ptr pointer)
+void OptppTrajQNewton::SpecifyProblem(PlanningProblemPtr pointer)
 {
     if (pointer->type() != "exotica::UnconstrainedTimeIndexedProblem")
     {
-        throw_named("OPT++ Trajectory can't solve problem of type '" << pointer->type() << "'!");
+        ThrowNamed("OPT++ Trajectory can't solve problem of type '" << pointer->type() << "'!");
     }
-    MotionSolver::specifyProblem(pointer);
+    MotionSolver::SpecifyProblem(pointer);
     prob_ = std::static_pointer_cast<UnconstrainedTimeIndexedProblem>(pointer);
 }
 
@@ -211,12 +207,12 @@ void OptppTrajQNewton::Solve(Eigen::MatrixXd& solution)
 {
     Timer timer;
 
-    if (!prob_) throw_named("Solver has not been initialized!");
-    prob_->preupdate();
-    prob_->resetCostEvolution(getNumberOfMaxIterations() + 1);
+    if (!prob_) ThrowNamed("Solver has not been initialized!");
+    prob_->PreUpdate();
+    prob_->ResetCostEvolution(GetNumberOfMaxIterations() + 1);
 
-    solution.resize(prob_->getT(), prob_->N);
-    solution.row(0) = prob_->getInitialTrajectory()[0];
+    solution.resize(prob_->GetT(), prob_->N);
+    solution.row(0) = prob_->GetInitialTrajectory()[0];
     int iter, feval, geval, ret;
     double f_sol;
 
@@ -242,13 +238,13 @@ void OptppTrajQNewton::Solve(Eigen::MatrixXd& solution)
         solver->setMaxBacktrackIter(parameters_.MaxBacktrackIterations);
         solver->setLineSearchTol(parameters_.LineSearchTolerance);
         solver->setStepTol(parameters_.StepTolerance);
-        solver->setMaxIter(getNumberOfMaxIterations());
+        solver->setMaxIter(GetNumberOfMaxIterations());
         solver->setFcnTol(parameters_.FunctionTolerance);
         solver->setMinStep(parameters_.MinStep);
         solver->setOutputFile("/tmp/OPTPP_DEFAULT.out", 0);
         solver->optimize();
         ColumnVector sol = nlf->getXc();
-        for (int t = 1; t < prob_->getT(); t++)
+        for (int t = 1; t < prob_->GetT(); t++)
             for (int i = 0; i < prob_->N; i++)
                 solution(t, i) = sol((t - 1) * prob_->N + i + 1);
         iter = solver->getIter();
@@ -261,10 +257,10 @@ void OptppTrajQNewton::Solve(Eigen::MatrixXd& solution)
     CatchAll
     {
         Tracer::last->PrintTrace();
-        throw_pretty("OPT++ exception:" << BaseException::what());
+        ThrowPretty("OPT++ exception:" << BaseException::what());
     }
 
-    planning_time_ = timer.getDuration();
+    planning_time_ = timer.GetDuration();
 
     if (debug_)
     {
@@ -272,13 +268,13 @@ void OptppTrajQNewton::Solve(Eigen::MatrixXd& solution)
     }
 }
 
-void OptppTrajFDNewton::specifyProblem(PlanningProblem_ptr pointer)
+void OptppTrajFDNewton::SpecifyProblem(PlanningProblemPtr pointer)
 {
     if (pointer->type() != "exotica::UnconstrainedTimeIndexedProblem")
     {
-        throw_named("OPT++ Trajectory can't solve problem of type '" << pointer->type() << "'!");
+        ThrowNamed("OPT++ Trajectory can't solve problem of type '" << pointer->type() << "'!");
     }
-    MotionSolver::specifyProblem(pointer);
+    MotionSolver::SpecifyProblem(pointer);
     prob_ = std::static_pointer_cast<UnconstrainedTimeIndexedProblem>(pointer);
 }
 
@@ -286,12 +282,12 @@ void OptppTrajFDNewton::Solve(Eigen::MatrixXd& solution)
 {
     Timer timer;
 
-    if (!prob_) throw_named("Solver has not been initialized!");
-    prob_->preupdate();
-    prob_->resetCostEvolution(getNumberOfMaxIterations() + 1);
+    if (!prob_) ThrowNamed("Solver has not been initialized!");
+    prob_->PreUpdate();
+    prob_->ResetCostEvolution(GetNumberOfMaxIterations() + 1);
 
-    solution.resize(prob_->getT(), prob_->N);
-    solution.row(0) = prob_->getInitialTrajectory()[0];
+    solution.resize(prob_->GetT(), prob_->N);
+    solution.row(0) = prob_->GetInitialTrajectory()[0];
     int iter, feval, geval, ret;
 
     Try
@@ -316,13 +312,13 @@ void OptppTrajFDNewton::Solve(Eigen::MatrixXd& solution)
         solver->setMaxBacktrackIter(parameters_.MaxBacktrackIterations);
         solver->setLineSearchTol(parameters_.LineSearchTolerance);
         solver->setStepTol(parameters_.StepTolerance);
-        solver->setMaxIter(getNumberOfMaxIterations());
+        solver->setMaxIter(GetNumberOfMaxIterations());
         solver->setFcnTol(parameters_.FunctionTolerance);
         solver->setMinStep(parameters_.MinStep);
         solver->setOutputFile("/tmp/OPTPP_DEFAULT.out", 0);
         solver->optimize();
         ColumnVector sol = nlf->getXc();
-        for (int t = 1; t < prob_->getT(); t++)
+        for (int t = 1; t < prob_->GetT(); t++)
             for (int i = 0; i < prob_->N; i++)
                 solution(t, i) = sol((t - 1) * prob_->N + i + 1);
         iter = solver->getIter();
@@ -334,10 +330,10 @@ void OptppTrajFDNewton::Solve(Eigen::MatrixXd& solution)
     CatchAll
     {
         Tracer::last->PrintTrace();
-        throw_pretty("OPT++ exception:" << BaseException::what());
+        ThrowPretty("OPT++ exception:" << BaseException::what());
     }
 
-    planning_time_ = timer.getDuration();
+    planning_time_ = timer.GetDuration();
 
     if (debug_)
     {
@@ -345,13 +341,13 @@ void OptppTrajFDNewton::Solve(Eigen::MatrixXd& solution)
     }
 }
 
-void OptppTrajGSS::specifyProblem(PlanningProblem_ptr pointer)
+void OptppTrajGSS::SpecifyProblem(PlanningProblemPtr pointer)
 {
     if (pointer->type() != "exotica::UnconstrainedTimeIndexedProblem")
     {
-        throw_named("OPT++ Trajectory can't solve problem of type '" << pointer->type() << "'!");
+        ThrowNamed("OPT++ Trajectory can't solve problem of type '" << pointer->type() << "'!");
     }
-    MotionSolver::specifyProblem(pointer);
+    MotionSolver::SpecifyProblem(pointer);
     prob_ = std::static_pointer_cast<UnconstrainedTimeIndexedProblem>(pointer);
 }
 
@@ -359,12 +355,12 @@ void OptppTrajGSS::Solve(Eigen::MatrixXd& solution)
 {
     Timer timer;
 
-    if (!prob_) throw_named("Solver has not been initialized!");
-    prob_->preupdate();
-    prob_->resetCostEvolution(getNumberOfMaxIterations() + 1);
+    if (!prob_) ThrowNamed("Solver has not been initialized!");
+    prob_->PreUpdate();
+    prob_->ResetCostEvolution(GetNumberOfMaxIterations() + 1);
 
-    solution.resize(prob_->getT(), prob_->N);
-    solution.row(0) = prob_->getInitialTrajectory()[0];
+    solution.resize(prob_->GetT(), prob_->N);
+    solution.row(0) = prob_->GetInitialTrajectory()[0];
     int iter, feval, geval, ret;
 
     Try
@@ -380,10 +376,10 @@ void OptppTrajGSS::Solve(Eigen::MatrixXd& solution)
 
         solver->setOutputFile("/tmp/OPTPP_DEFAULT.out", 0);
         solver->setFullSearch(true);
-        solver->setMaxIter(getNumberOfMaxIterations());
+        solver->setMaxIter(GetNumberOfMaxIterations());
         solver->optimize();
         ColumnVector sol = nlf->getXc();
-        for (int t = 1; t < prob_->getT(); t++)
+        for (int t = 1; t < prob_->GetT(); t++)
             for (int i = 0; i < prob_->N; i++)
                 solution(t, i) = sol((t - 1) * prob_->N + i + 1);
         iter = solver->getIter();
@@ -394,10 +390,10 @@ void OptppTrajGSS::Solve(Eigen::MatrixXd& solution)
     CatchAll
     {
         Tracer::last->PrintTrace();
-        throw_pretty("OPT++ exception:" << BaseException::what());
+        ThrowPretty("OPT++ exception:" << BaseException::what());
     }
 
-    planning_time_ = timer.getDuration();
+    planning_time_ = timer.GetDuration();
 
     if (debug_)
     {

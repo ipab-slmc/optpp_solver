@@ -1,1 +1,3 @@
+class OptppTrajQNewton
+
 extend <optpp_solver/OptppMotionSolver>

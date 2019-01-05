@@ -1,4 +1,6 @@
-extend <exotica_core/MotionSolver>
+class OptppMotionSolver
+
+extend <exotica_core/motion_solver>
 Optional bool UseFiniteDifferences = false;
 Optional double FunctionTolerance = 1e-4;
 Optional double MinStep = 2.2e-16;
