@@ -37,7 +37,7 @@
    
     <Rho>1e4</Rho>
     <T>233</T>
-    <Tau>0.03</Tau>
+    <tau>0.03</tau>
     <Wrate>1e3</Wrate>
     <W> 7 6 5 4 3 2 1 </W>
   </UnconstrainedTimeIndexedProblem>
