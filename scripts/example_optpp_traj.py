@@ -4,8 +4,8 @@ import pyexotica as exo
 from pyexotica.publish_trajectory import *
 
 exo.Setup.init_ros()
-solver=exo.Setup.loadSolver('{optpp_solver}/resources/optpp_traj.xml')
-problem = solver.getProblem()
+solver=exo.Setup.load_solver('{optpp_solver}/resources/optpp_traj.xml')
+problem = solver.get_problem()
 
 for t in range(0,problem.T):
     if float(t)*problem.tau<0.8:
