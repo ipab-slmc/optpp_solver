@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018, University of Edinburgh
+// Copyright (c) 2019, University of Edinburgh
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,8 @@
 #include <optpp_catkin/OptGSS.h>
 #include <optpp_catkin/OptLBFGS.h>
 #include <optpp_catkin/OptQNewton.h>
-#include <optpp_solver/otpp_traj.h>
+
+#include <optpp_solver/optpp_traj.h>
 
 REGISTER_MOTIONSOLVER_TYPE("OptppTrajLBFGS", exotica::OptppTrajLBFGS)
 REGISTER_MOTIONSOLVER_TYPE("OptppTrajCG", exotica::OptppTrajCG)
@@ -42,16 +43,18 @@ REGISTER_MOTIONSOLVER_TYPE("OptppTrajGSS", exotica::OptppTrajGSS)
 
 namespace exotica
 {
-void OptppTrajLBFGS::SpecifyProblem(PlanningProblemPtr pointer)
+template <class ProblemType, class InitializerType>
+void OptppTimeIndexedSolver<ProblemType, InitializerType>::SpecifyProblem(PlanningProblemPtr pointer)
 {
     if (pointer->type() != "exotica::UnconstrainedTimeIndexedProblem")
     {
-        ThrowNamed("OPT++ Trajectory can't solve problem of type '" << pointer->type() << "'!");
+        ThrowNamed("OptppTimeIndexedSolver can't solve problem of type '" << pointer->type() << "'!");
     }
     MotionSolver::SpecifyProblem(pointer);
-    prob_ = std::static_pointer_cast<UnconstrainedTimeIndexedProblem>(pointer);
+    prob_ = std::static_pointer_cast<ProblemType>(pointer);
 }
 
+template <>
 void OptppTrajLBFGS::Solve(Eigen::MatrixXd& solution)
 {
     Timer timer;
@@ -120,16 +123,7 @@ void OptppTrajLBFGS::Solve(Eigen::MatrixXd& solution)
     }
 }
 
-void OptppTrajCG::SpecifyProblem(PlanningProblemPtr pointer)
-{
-    if (pointer->type() != "exotica::UnconstrainedTimeIndexedProblem")
-    {
-        ThrowNamed("OPT++ Trajectory can't solve problem of type '" << pointer->type() << "'!");
-    }
-    MotionSolver::SpecifyProblem(pointer);
-    prob_ = std::static_pointer_cast<UnconstrainedTimeIndexedProblem>(pointer);
-}
-
+template <>
 void OptppTrajCG::Solve(Eigen::MatrixXd& solution)
 {
     Timer timer;
@@ -193,16 +187,7 @@ void OptppTrajCG::Solve(Eigen::MatrixXd& solution)
     }
 }
 
-void OptppTrajQNewton::SpecifyProblem(PlanningProblemPtr pointer)
-{
-    if (pointer->type() != "exotica::UnconstrainedTimeIndexedProblem")
-    {
-        ThrowNamed("OPT++ Trajectory can't solve problem of type '" << pointer->type() << "'!");
-    }
-    MotionSolver::SpecifyProblem(pointer);
-    prob_ = std::static_pointer_cast<UnconstrainedTimeIndexedProblem>(pointer);
-}
-
+template <>
 void OptppTrajQNewton::Solve(Eigen::MatrixXd& solution)
 {
     Timer timer;
@@ -268,16 +253,7 @@ void OptppTrajQNewton::Solve(Eigen::MatrixXd& solution)
     }
 }
 
-void OptppTrajFDNewton::SpecifyProblem(PlanningProblemPtr pointer)
-{
-    if (pointer->type() != "exotica::UnconstrainedTimeIndexedProblem")
-    {
-        ThrowNamed("OPT++ Trajectory can't solve problem of type '" << pointer->type() << "'!");
-    }
-    MotionSolver::SpecifyProblem(pointer);
-    prob_ = std::static_pointer_cast<UnconstrainedTimeIndexedProblem>(pointer);
-}
-
+template <>
 void OptppTrajFDNewton::Solve(Eigen::MatrixXd& solution)
 {
     Timer timer;
@@ -341,16 +317,7 @@ void OptppTrajFDNewton::Solve(Eigen::MatrixXd& solution)
     }
 }
 
-void OptppTrajGSS::SpecifyProblem(PlanningProblemPtr pointer)
-{
-    if (pointer->type() != "exotica::UnconstrainedTimeIndexedProblem")
-    {
-        ThrowNamed("OPT++ Trajectory can't solve problem of type '" << pointer->type() << "'!");
-    }
-    MotionSolver::SpecifyProblem(pointer);
-    prob_ = std::static_pointer_cast<UnconstrainedTimeIndexedProblem>(pointer);
-}
-
+template <>
 void OptppTrajGSS::Solve(Eigen::MatrixXd& solution)
 {
     Timer timer;
@@ -400,4 +367,4 @@ void OptppTrajGSS::Solve(Eigen::MatrixXd& solution)
         HIGHLIGHT_NAMED(object_name_ + " OptppTrajGSS", "Time: " << planning_time_ << ", Status: " << ret << ", Iterations: " << iter << ", Feval: " << feval);
     }
 }
-}
+}  // namespace exotica

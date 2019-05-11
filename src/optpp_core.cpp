@@ -284,4 +284,4 @@ void FDNLF1WrapperUTIP::initFcn()
         parent_.init(dim, mem_xc);
     }
 }
-}
+}  // namespace exotica

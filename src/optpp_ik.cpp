@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018, University of Edinburgh
+// Copyright (c) 2019, University of Edinburgh
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,8 @@
 #include <optpp_catkin/OptGSS.h>
 #include <optpp_catkin/OptLBFGS.h>
 #include <optpp_catkin/OptQNewton.h>
-#include <optpp_solver/otpp_ik.h>
+
+#include <optpp_solver/optpp_ik.h>
 
 REGISTER_MOTIONSOLVER_TYPE("OptppIKLBFGS", exotica::OptppIKLBFGS)
 REGISTER_MOTIONSOLVER_TYPE("OptppIKCG", exotica::OptppIKCG)
@@ -42,16 +43,18 @@ REGISTER_MOTIONSOLVER_TYPE("OptppIKGSS", exotica::OptppIKGSS)
 
 namespace exotica
 {
-void OptppIKLBFGS::SpecifyProblem(PlanningProblemPtr pointer)
+template <class ProblemType, class InitializerType>
+void OptppEndPoseSolver<ProblemType, InitializerType>::SpecifyProblem(PlanningProblemPtr pointer)
 {
     if (pointer->type() != "exotica::UnconstrainedEndPoseProblem")
     {
         ThrowNamed("OPT++ IK can't solve problem of type '" << pointer->type() << "'!");
     }
     MotionSolver::SpecifyProblem(pointer);
-    prob_ = std::static_pointer_cast<UnconstrainedEndPoseProblem>(pointer);
+    prob_ = std::static_pointer_cast<ProblemType>(pointer);
 }
 
+template <>
 void OptppIKLBFGS::Solve(Eigen::MatrixXd& solution)
 {
     Timer timer;
@@ -115,16 +118,7 @@ void OptppIKLBFGS::Solve(Eigen::MatrixXd& solution)
     }
 }
 
-void OptppIKCG::SpecifyProblem(PlanningProblemPtr pointer)
-{
-    if (pointer->type() != "exotica::UnconstrainedEndPoseProblem")
-    {
-        ThrowNamed("OPT++ IK can't solve problem of type '" << pointer->type() << "'!");
-    }
-    MotionSolver::SpecifyProblem(pointer);
-    prob_ = std::static_pointer_cast<UnconstrainedEndPoseProblem>(pointer);
-}
-
+template <>
 void OptppIKCG::Solve(Eigen::MatrixXd& solution)
 {
     Timer timer;
@@ -188,16 +182,7 @@ void OptppIKCG::Solve(Eigen::MatrixXd& solution)
     }
 }
 
-void OptppIKQNewton::SpecifyProblem(PlanningProblemPtr pointer)
-{
-    if (pointer->type() != "exotica::UnconstrainedEndPoseProblem")
-    {
-        ThrowNamed("OPT++ IK can't solve problem of type '" << pointer->type() << "'!");
-    }
-    MotionSolver::SpecifyProblem(pointer);
-    prob_ = std::static_pointer_cast<UnconstrainedEndPoseProblem>(pointer);
-}
-
+template <>
 void OptppIKQNewton::Solve(Eigen::MatrixXd& solution)
 {
     Timer timer;
@@ -261,16 +246,7 @@ void OptppIKQNewton::Solve(Eigen::MatrixXd& solution)
     }
 }
 
-void OptppIKFDNewton::SpecifyProblem(PlanningProblemPtr pointer)
-{
-    if (pointer->type() != "exotica::UnconstrainedEndPoseProblem")
-    {
-        ThrowNamed("OPT++ IK can't solve problem of type '" << pointer->type() << "'!");
-    }
-    MotionSolver::SpecifyProblem(pointer);
-    prob_ = std::static_pointer_cast<UnconstrainedEndPoseProblem>(pointer);
-}
-
+template <>
 void OptppIKFDNewton::Solve(Eigen::MatrixXd& solution)
 {
     Timer timer;
@@ -334,16 +310,7 @@ void OptppIKFDNewton::Solve(Eigen::MatrixXd& solution)
     }
 }
 
-void OptppIKGSS::SpecifyProblem(PlanningProblemPtr pointer)
-{
-    if (pointer->type() != "exotica::UnconstrainedEndPoseProblem")
-    {
-        ThrowNamed("OPT++ IK can't solve problem of type '" << pointer->type() << "'!");
-    }
-    MotionSolver::SpecifyProblem(pointer);
-    prob_ = std::static_pointer_cast<UnconstrainedEndPoseProblem>(pointer);
-}
-
+template <>
 void OptppIKGSS::Solve(Eigen::MatrixXd& solution)
 {
     Timer timer;
@@ -393,4 +360,4 @@ void OptppIKGSS::Solve(Eigen::MatrixXd& solution)
         HIGHLIGHT_NAMED(object_name_ + " OptppIKGSS", "Time: " << planning_time_ << ", Status: " << ret << ", Iterations: " << iter << ", Feval: " << feval);
     }
 }
-}
+}  // namespace exotica

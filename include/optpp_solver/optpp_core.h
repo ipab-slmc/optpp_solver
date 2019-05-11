@@ -137,6 +137,6 @@ public:
 protected:
     UnconstrainedTimeIndexedProblemWrapper parent_;
 };
-}
+}  // namespace exotica
 
 #endif  // EXOTICA_OPTPP_SOLVER_OPTPP_CORE_H_
