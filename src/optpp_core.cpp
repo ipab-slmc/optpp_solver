@@ -68,7 +68,7 @@ void UnconstrainedEndPoseProblemWrapper::update(int mode, int n, const ColumnVec
 
     if (mode & NLPGradient)
     {
-        Eigen::VectorXd J = problem_->GetScalarJacobian();
+        const auto J = problem_->GetScalarJacobian();
         for (int i = 0; i < n; i++) gx(i + 1) = J(i);
         result = NLPGradient;
     }
