@@ -30,7 +30,7 @@
 #ifndef EXOTICA_OPTPP_SOLVER_OPTPP_IK_H_
 #define EXOTICA_OPTPP_SOLVER_OPTPP_IK_H_
 
-#include <exotica_core/exotica_core.h>
+#include <exotica_core/motion_solver.h>
 #include <exotica_core/problems/unconstrained_end_pose_problem.h>
 
 #include <optpp_solver/OptppIKCG_initializer.h>
@@ -46,9 +46,6 @@ template <class ProblemType, class InitializerType>
 class OptppEndPoseSolver : public MotionSolver, public Instantiable<InitializerType>
 {
 public:
-    OptppEndPoseSolver() = default;
-    virtual ~OptppEndPoseSolver() = default;
-
     void Solve(Eigen::MatrixXd& solution) override;
     void SpecifyProblem(PlanningProblemPtr pointer) override;
 

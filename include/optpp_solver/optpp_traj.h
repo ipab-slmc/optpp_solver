@@ -30,7 +30,7 @@
 #ifndef EXOTICA_OPTPP_SOLVER_OPTPP_TRAJ_H_
 #define EXOTICA_OPTPP_SOLVER_OPTPP_TRAJ_H_
 
-#include <exotica_core/exotica_core.h>
+#include <exotica_core/motion_solver.h>
 #include <exotica_core/problems/unconstrained_time_indexed_problem.h>
 
 #include <optpp_solver/OptppTrajCG_initializer.h>
@@ -46,9 +46,6 @@ template <class ProblemType, class InitializerType>
 class OptppTimeIndexedSolver : public MotionSolver, public Instantiable<InitializerType>
 {
 public:
-    OptppTimeIndexedSolver() = default;
-    virtual ~OptppTimeIndexedSolver() = default;
-
     void Solve(Eigen::MatrixXd& solution) override;
     void SpecifyProblem(PlanningProblemPtr pointer) override;
 
